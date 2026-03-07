@@ -1,0 +1,2910 @@
+{
+  "metadata": {
+    "generated_at": "2026-03-07T18:44:28.757019",
+    "models_tested": 16,
+    "gpus_tested": 6,
+    "total_records": 115,
+    "aggregation_metric": "median_tokens_per_sec",
+    "benchmark_source_format": "local_structured_only",
+    "structured_records_total": 219,
+    "legacy_records_total": 367,
+    "quality_excluded_total": 32,
+    "platform_rejected_total": 29,
+    "platform_bottleneck_total": 7,
+    "quality_gate_policy": {
+      "platform_bottleneck_ratio": 0.8,
+      "min_machine_configs_for_verified": 2,
+      "rejected_motherboard_patterns": [
+        "0HHV7N",
+        "0T10XW",
+        "0MWYPT",
+        "PowerEdge",
+        "H12SSL",
+        "H11SSL",
+        "H13SSL",
+        "H12DST",
+        "H11DST",
+        "H12SST",
+        "X11DAi",
+        "X11SRA",
+        "X10DRG",
+        "X11DPL",
+        "X12DAi",
+        "H11DSi",
+        "H12DSi",
+        "H13DSi",
+        "KRPA-U16",
+        "Z11PA",
+        "KMPP-D32",
+        "ROMED8",
+        "EPYCD8",
+        "X570D4I",
+        "TRX40D8",
+        "S2600",
+        "IPMI"
+      ],
+      "consumer_motherboard_patterns": [
+        "ROG",
+        "Crosshair",
+        "Strix",
+        "AORUS",
+        "Gaming",
+        "Z790",
+        "Z690",
+        "Z590",
+        "Z490",
+        "Z390",
+        "B650",
+        "B550",
+        "B450",
+        "X670",
+        "X570",
+        "X470",
+        "MAG ",
+        "MEG ",
+        "MPG ",
+        "Taichi",
+        "Phantom",
+        "Steel Legend"
+      ],
+      "publish_consumer_only": true
+    }
+  },
+  "models": [
+    {
+      "name": "deepseek-r1:14b",
+      "params": "14B",
+      "family": "Deepseek-r1"
+    },
+    {
+      "name": "deepseek-r1:32b",
+      "params": "32B",
+      "family": "Deepseek-r1"
+    },
+    {
+      "name": "deepseek-r1:7b",
+      "params": "7B",
+      "family": "Deepseek-r1"
+    },
+    {
+      "name": "gemma3:4b",
+      "params": "4B",
+      "family": "Gemma3"
+    },
+    {
+      "name": "llama-2-7b-Q4_0",
+      "params": "",
+      "family": "Llama-2-7b-q4_0"
+    },
+    {
+      "name": "llama3.1:8b",
+      "params": "8B",
+      "family": "Llama3"
+    },
+    {
+      "name": "llama3.2:3b",
+      "params": "3B",
+      "family": "Llama3"
+    },
+    {
+      "name": "llama3.3:70b",
+      "params": "70B",
+      "family": "Llama3"
+    },
+    {
+      "name": "mistral-nemo:12b",
+      "params": "12B",
+      "family": "Mistral-nemo"
+    },
+    {
+      "name": "mistral-small:24b",
+      "params": "24B",
+      "family": "Mistral-small"
+    },
+    {
+      "name": "phi4-reasoning:14b",
+      "params": "14B",
+      "family": "Phi4-reasoning"
+    },
+    {
+      "name": "qwen2.5:32b",
+      "params": "32B",
+      "family": "Qwen2"
+    },
+    {
+      "name": "qwen2.5:7b",
+      "params": "7B",
+      "family": "Qwen2"
+    },
+    {
+      "name": "qwen3.5:27b",
+      "params": "27B",
+      "family": "Qwen3"
+    },
+    {
+      "name": "qwen3.5:4b",
+      "params": "4B",
+      "family": "Qwen3"
+    },
+    {
+      "name": "qwen3.5:9b",
+      "params": "9B",
+      "family": "Qwen3"
+    }
+  ],
+  "gpus": [
+    {
+      "name": "RTX 5090",
+      "vram_gb": 32,
+      "retail_usd": 1999,
+      "used_usd": 1800,
+      "tps_per_dollar_retail": 0.133,
+      "tps_per_dollar_used": 0.148,
+      "tps_reference_model": "llama3.1:8b",
+      "benchmarks": {
+        "deepseek-r1:14b": {
+          "median_tokens_per_sec": 148.2,
+          "mean_tokens_per_sec": 148.2,
+          "min_tokens_per_sec": 148.2,
+          "max_tokens_per_sec": 148.2,
+          "std_dev": 0.0,
+          "cv_pct": 0.0,
+          "samples": 1,
+          "samples_throttled": 0,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "intel(r) core(tm) ultra 9 285k||rog strix z890-e gaming wifi"
+          ],
+          "verified": false,
+          "confidence": "low",
+          "noisy": false,
+          "total_attempts": 4,
+          "ok_attempts": 3,
+          "success_rate_pct": 75.0,
+          "status_breakdown": {
+            "OK": 3,
+            "NO_OUTPUT": 1
+          },
+          "drivers": [
+            "580.126.09"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 1
+          },
+          "data_source_counts": {
+            "vastai": 1
+          },
+          "gpu_power_avg_w": 488.4,
+          "gpu_clock_avg_mhz": 2917.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.304,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": 0.0,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 125.1,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "deepseek-r1:32b": {
+          "median_tokens_per_sec": 74.7,
+          "mean_tokens_per_sec": 74.7,
+          "min_tokens_per_sec": 74.7,
+          "max_tokens_per_sec": 74.7,
+          "std_dev": 0.0,
+          "cv_pct": 0.0,
+          "samples": 1,
+          "samples_throttled": 0,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "intel(r) core(tm) ultra 9 285k||rog strix z890-e gaming wifi"
+          ],
+          "verified": false,
+          "confidence": "low",
+          "noisy": false,
+          "total_attempts": 1,
+          "ok_attempts": 1,
+          "success_rate_pct": 100.0,
+          "status_breakdown": {
+            "OK": 1
+          },
+          "drivers": [
+            "580.126.09"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 1
+          },
+          "data_source_counts": {
+            "vastai": 1
+          },
+          "gpu_power_avg_w": 533.3,
+          "gpu_clock_avg_mhz": 2895.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.14,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": 0.0,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 125.1,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "deepseek-r1:7b": {
+          "median_tokens_per_sec": 278.4,
+          "mean_tokens_per_sec": 278.4,
+          "min_tokens_per_sec": 278.4,
+          "max_tokens_per_sec": 278.4,
+          "std_dev": 0.0,
+          "cv_pct": 0.0,
+          "samples": 1,
+          "samples_throttled": 0,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "intel(r) core(tm) ultra 9 285k||rog strix z890-e gaming wifi"
+          ],
+          "verified": false,
+          "confidence": "low",
+          "noisy": false,
+          "total_attempts": 7,
+          "ok_attempts": 4,
+          "success_rate_pct": 57.1,
+          "status_breakdown": {
+            "OK": 4,
+            "NO_OUTPUT": 3
+          },
+          "drivers": [
+            "580.126.09"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 1
+          },
+          "data_source_counts": {
+            "vastai": 1
+          },
+          "gpu_power_avg_w": 481.7,
+          "gpu_clock_avg_mhz": 2910.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.578,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": 0.0,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 125.1,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "gemma3:4b": {
+          "median_tokens_per_sec": 285.8,
+          "mean_tokens_per_sec": 285.8,
+          "min_tokens_per_sec": 285.8,
+          "max_tokens_per_sec": 285.8,
+          "std_dev": 0.0,
+          "cv_pct": 0.0,
+          "samples": 1,
+          "samples_throttled": 1,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "intel(r) core(tm) ultra 9 285k||rog strix z890-e gaming wifi"
+          ],
+          "verified": false,
+          "confidence": "low",
+          "noisy": false,
+          "total_attempts": 1,
+          "ok_attempts": 1,
+          "success_rate_pct": 100.0,
+          "status_breakdown": {
+            "OK": 1
+          },
+          "drivers": [
+            "580.126.09"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 1
+          },
+          "data_source_counts": {
+            "vastai": 1
+          },
+          "gpu_power_avg_w": 261.6,
+          "gpu_clock_avg_mhz": 2925.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 1.092,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": 0.0,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 125.1,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "llama-2-7b-Q4_0": {
+          "median_tokens_per_sec": 252.5,
+          "mean_tokens_per_sec": 252.5,
+          "min_tokens_per_sec": 252.5,
+          "max_tokens_per_sec": 252.5,
+          "std_dev": 0.0,
+          "cv_pct": 0.0,
+          "samples": 1,
+          "samples_throttled": 1,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "intel(r) core(tm) ultra 9 285k||rog strix z890-e gaming wifi"
+          ],
+          "verified": false,
+          "confidence": "low",
+          "noisy": false,
+          "total_attempts": 6,
+          "ok_attempts": 3,
+          "success_rate_pct": 50.0,
+          "status_breakdown": {
+            "OK": 3,
+            "LLAMA_BENCH_FAILED": 3
+          },
+          "drivers": [
+            "580.126.09"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 1
+          },
+          "data_source_counts": {
+            "vastai": 1
+          },
+          "gpu_power_avg_w": 99.3,
+          "gpu_clock_avg_mhz": 2535.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 2.542,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": null,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 125.1,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "llama3.1:8b": {
+          "median_tokens_per_sec": 266.8,
+          "mean_tokens_per_sec": 266.8,
+          "min_tokens_per_sec": 266.8,
+          "max_tokens_per_sec": 266.8,
+          "std_dev": 0.0,
+          "cv_pct": 0.0,
+          "samples": 1,
+          "samples_throttled": 0,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "intel(r) core(tm) ultra 9 285k||rog strix z890-e gaming wifi"
+          ],
+          "verified": false,
+          "confidence": "low",
+          "noisy": false,
+          "total_attempts": 10,
+          "ok_attempts": 10,
+          "success_rate_pct": 100.0,
+          "status_breakdown": {
+            "OK": 10
+          },
+          "drivers": [
+            "580.126.09"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 1
+          },
+          "data_source_counts": {
+            "vastai": 1
+          },
+          "gpu_power_avg_w": 481.0,
+          "gpu_clock_avg_mhz": 2921.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.555,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": 0.0,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 125.1,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "llama3.2:3b": {
+          "median_tokens_per_sec": 485.9,
+          "mean_tokens_per_sec": 485.9,
+          "min_tokens_per_sec": 485.9,
+          "max_tokens_per_sec": 485.9,
+          "std_dev": 0.0,
+          "cv_pct": 0.0,
+          "samples": 1,
+          "samples_throttled": 1,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "intel(r) core(tm) ultra 9 285k||rog strix z890-e gaming wifi"
+          ],
+          "verified": false,
+          "confidence": "low",
+          "noisy": false,
+          "total_attempts": 4,
+          "ok_attempts": 4,
+          "success_rate_pct": 100.0,
+          "status_breakdown": {
+            "OK": 4
+          },
+          "drivers": [
+            "580.126.09"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 1
+          },
+          "data_source_counts": {
+            "vastai": 1
+          },
+          "gpu_power_avg_w": 143.1,
+          "gpu_clock_avg_mhz": 2771.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 3.395,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": 0.0,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 125.1,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "mistral-nemo:12b": {
+          "median_tokens_per_sec": 192.9,
+          "mean_tokens_per_sec": 192.9,
+          "min_tokens_per_sec": 192.9,
+          "max_tokens_per_sec": 192.9,
+          "std_dev": 0.0,
+          "cv_pct": 0.0,
+          "samples": 1,
+          "samples_throttled": 0,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "intel(r) core(tm) ultra 9 285k||rog strix z890-e gaming wifi"
+          ],
+          "verified": false,
+          "confidence": "low",
+          "noisy": false,
+          "total_attempts": 1,
+          "ok_attempts": 1,
+          "success_rate_pct": 100.0,
+          "status_breakdown": {
+            "OK": 1
+          },
+          "drivers": [
+            "580.126.09"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 1
+          },
+          "data_source_counts": {
+            "vastai": 1
+          },
+          "gpu_power_avg_w": 437.6,
+          "gpu_clock_avg_mhz": 2914.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.441,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": 0.0,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 125.1,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "mistral-small:24b": {
+          "median_tokens_per_sec": 102.8,
+          "mean_tokens_per_sec": 102.8,
+          "min_tokens_per_sec": 102.8,
+          "max_tokens_per_sec": 102.8,
+          "std_dev": 0.0,
+          "cv_pct": 0.0,
+          "samples": 1,
+          "samples_throttled": 0,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "intel(r) core(tm) ultra 9 285k||rog strix z890-e gaming wifi"
+          ],
+          "verified": false,
+          "confidence": "low",
+          "noisy": false,
+          "total_attempts": 4,
+          "ok_attempts": 3,
+          "success_rate_pct": 75.0,
+          "status_breakdown": {
+            "OK": 3,
+            "PULL_FAILED": 1
+          },
+          "drivers": [
+            "580.126.09"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 1
+          },
+          "data_source_counts": {
+            "vastai": 1
+          },
+          "gpu_power_avg_w": 524.8,
+          "gpu_clock_avg_mhz": 2886.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.196,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": 0.0,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 125.1,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "phi4-reasoning:14b": {
+          "median_tokens_per_sec": 131.0,
+          "mean_tokens_per_sec": 131.0,
+          "min_tokens_per_sec": 131.0,
+          "max_tokens_per_sec": 131.0,
+          "std_dev": 0.0,
+          "cv_pct": 0.0,
+          "samples": 1,
+          "samples_throttled": 0,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "intel(r) core(tm) ultra 9 285k||rog strix z890-e gaming wifi"
+          ],
+          "verified": false,
+          "confidence": "low",
+          "noisy": false,
+          "total_attempts": 1,
+          "ok_attempts": 1,
+          "success_rate_pct": 100.0,
+          "status_breakdown": {
+            "OK": 1
+          },
+          "drivers": [
+            "580.126.09"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 1
+          },
+          "data_source_counts": {
+            "vastai": 1
+          },
+          "gpu_power_avg_w": 529.3,
+          "gpu_clock_avg_mhz": 2910.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.247,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": 0.0,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 125.1,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "qwen3.5:27b": {
+          "median_tokens_per_sec": 62.7,
+          "mean_tokens_per_sec": 62.7,
+          "min_tokens_per_sec": 62.7,
+          "max_tokens_per_sec": 62.7,
+          "std_dev": 0.0,
+          "cv_pct": 0.0,
+          "samples": 1,
+          "samples_throttled": 0,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "intel(r) core(tm) ultra 9 285k||rog strix z890-e gaming wifi"
+          ],
+          "verified": false,
+          "confidence": "low",
+          "noisy": false,
+          "total_attempts": 2,
+          "ok_attempts": 1,
+          "success_rate_pct": 50.0,
+          "status_breakdown": {
+            "NO_OUTPUT": 1,
+            "OK": 1
+          },
+          "drivers": [
+            "580.126.09"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 1
+          },
+          "data_source_counts": {
+            "vastai": 1
+          },
+          "gpu_power_avg_w": 422.4,
+          "gpu_clock_avg_mhz": 2920.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.149,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": 0.0,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 125.1,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "qwen3.5:4b": {
+          "median_tokens_per_sec": 212.6,
+          "mean_tokens_per_sec": 212.6,
+          "min_tokens_per_sec": 212.6,
+          "max_tokens_per_sec": 212.6,
+          "std_dev": 0.0,
+          "cv_pct": 0.0,
+          "samples": 1,
+          "samples_throttled": 1,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "intel(r) core(tm) ultra 9 285k||rog strix z890-e gaming wifi"
+          ],
+          "verified": false,
+          "confidence": "low",
+          "noisy": false,
+          "total_attempts": 2,
+          "ok_attempts": 1,
+          "success_rate_pct": 50.0,
+          "status_breakdown": {
+            "NO_OUTPUT": 1,
+            "OK": 1
+          },
+          "drivers": [
+            "580.126.09"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 1
+          },
+          "data_source_counts": {
+            "vastai": 1
+          },
+          "gpu_power_avg_w": 270.5,
+          "gpu_clock_avg_mhz": 2932.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.786,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": 0.0,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 125.1,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "qwen3.5:9b": {
+          "median_tokens_per_sec": 163.4,
+          "mean_tokens_per_sec": 163.4,
+          "min_tokens_per_sec": 163.4,
+          "max_tokens_per_sec": 163.4,
+          "std_dev": 0.0,
+          "cv_pct": 0.0,
+          "samples": 1,
+          "samples_throttled": 1,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "intel(r) core(tm) ultra 9 285k||rog strix z890-e gaming wifi"
+          ],
+          "verified": false,
+          "confidence": "low",
+          "noisy": false,
+          "total_attempts": 2,
+          "ok_attempts": 1,
+          "success_rate_pct": 50.0,
+          "status_breakdown": {
+            "NO_OUTPUT": 1,
+            "OK": 1
+          },
+          "drivers": [
+            "580.126.09"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 1
+          },
+          "data_source_counts": {
+            "vastai": 1
+          },
+          "gpu_power_avg_w": 329.7,
+          "gpu_clock_avg_mhz": 2927.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.496,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": 0.0,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 125.1,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        }
+      }
+    },
+    {
+      "name": "RTX 4090",
+      "vram_gb": 24,
+      "retail_usd": 1799,
+      "used_usd": 1400,
+      "tps_per_dollar_retail": 0.079,
+      "tps_per_dollar_used": 0.101,
+      "tps_reference_model": "llama3.1:8b",
+      "benchmarks": {
+        "deepseek-r1:14b": {
+          "median_tokens_per_sec": 96.7,
+          "mean_tokens_per_sec": 95.9,
+          "min_tokens_per_sec": 94.1,
+          "max_tokens_per_sec": 96.9,
+          "std_dev": 1.5,
+          "cv_pct": 1.6,
+          "samples": 3,
+          "samples_throttled": 0,
+          "machine_configs_count": 2,
+          "machine_configs": [
+            "11th gen intel(r) core(tm) i5-11600kf @ 3.90ghz||prime z590-a",
+            "amd ryzen 9 5900x 12-core processor||x570 aorus ultra"
+          ],
+          "verified": true,
+          "confidence": "high",
+          "noisy": false,
+          "total_attempts": 5,
+          "ok_attempts": 4,
+          "success_rate_pct": 80.0,
+          "status_breakdown": {
+            "OK": 4,
+            "NO_OUTPUT": 1
+          },
+          "drivers": [
+            "570.181",
+            "580.126.09"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 3
+          },
+          "data_source_counts": {
+            "vastai": 3
+          },
+          "gpu_power_avg_w": 326.2,
+          "gpu_clock_avg_mhz": 2715.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.297,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": 0.0,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 62.7,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "deepseek-r1:32b": {
+          "median_tokens_per_sec": 8.1,
+          "mean_tokens_per_sec": 8.1,
+          "min_tokens_per_sec": 8.1,
+          "max_tokens_per_sec": 8.1,
+          "std_dev": 0.0,
+          "cv_pct": 0.0,
+          "samples": 1,
+          "samples_throttled": 1,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "11th gen intel(r) core(tm) i5-11600kf @ 3.90ghz||prime z590-a"
+          ],
+          "verified": false,
+          "confidence": "low",
+          "noisy": false,
+          "total_attempts": 2,
+          "ok_attempts": 1,
+          "success_rate_pct": 50.0,
+          "status_breakdown": {
+            "OK": 1,
+            "NO_OUTPUT": 1
+          },
+          "drivers": [
+            "580.126.09"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 1
+          },
+          "data_source_counts": {
+            "vastai": 1
+          },
+          "gpu_power_avg_w": 101.8,
+          "gpu_clock_avg_mhz": 2565.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.08,
+          "host_platform": "consumer",
+          "inference_type": "cpu_offload",
+          "offload_ratio": 0.77,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 62.7,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "deepseek-r1:7b": {
+          "median_tokens_per_sec": 146.1,
+          "mean_tokens_per_sec": 155.3,
+          "min_tokens_per_sec": 144.8,
+          "max_tokens_per_sec": 184.4,
+          "std_dev": 19.4,
+          "cv_pct": 12.5,
+          "samples": 4,
+          "samples_throttled": 0,
+          "machine_configs_count": 2,
+          "machine_configs": [
+            "11th gen intel(r) core(tm) i5-11600kf @ 3.90ghz||prime z590-a",
+            "amd ryzen 9 7950x 16-core processor||mpg x670e carbon wifi (ms-7d70)"
+          ],
+          "verified": true,
+          "confidence": "medium",
+          "noisy": true,
+          "total_attempts": 5,
+          "ok_attempts": 4,
+          "success_rate_pct": 80.0,
+          "status_breakdown": {
+            "OK": 4,
+            "NO_OUTPUT": 1
+          },
+          "drivers": [
+            "580.126.09"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 4
+          },
+          "data_source_counts": {
+            "vastai": 4
+          },
+          "gpu_power_avg_w": 323.7,
+          "gpu_clock_avg_mhz": 2670.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.451,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": 0.0,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 62.0,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "gemma3:4b": {
+          "median_tokens_per_sec": 222.5,
+          "mean_tokens_per_sec": 222.5,
+          "min_tokens_per_sec": 222.4,
+          "max_tokens_per_sec": 222.6,
+          "std_dev": 0.1,
+          "cv_pct": 0.1,
+          "samples": 2,
+          "samples_throttled": 2,
+          "machine_configs_count": 2,
+          "machine_configs": [
+            "11th gen intel(r) core(tm) i5-11600kf @ 3.90ghz||prime z590-a",
+            "amd ryzen 9 5900x 12-core processor||x570 aorus ultra"
+          ],
+          "verified": true,
+          "confidence": "high",
+          "noisy": false,
+          "total_attempts": 2,
+          "ok_attempts": 2,
+          "success_rate_pct": 100.0,
+          "status_breakdown": {
+            "OK": 2
+          },
+          "drivers": [
+            "570.181",
+            "580.126.09"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 2
+          },
+          "data_source_counts": {
+            "vastai": 2
+          },
+          "gpu_power_avg_w": 188.1,
+          "gpu_clock_avg_mhz": 2745.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 1.183,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": 0.0,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 62.7,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "llama-2-7b-Q4_0": {
+          "median_tokens_per_sec": 180.9,
+          "mean_tokens_per_sec": 180.0,
+          "min_tokens_per_sec": 176.2,
+          "max_tokens_per_sec": 181.9,
+          "std_dev": 2.6,
+          "cv_pct": 1.4,
+          "samples": 4,
+          "samples_throttled": 4,
+          "machine_configs_count": 2,
+          "machine_configs": [
+            "11th gen intel(r) core(tm) i5-11600kf @ 3.90ghz||prime z590-a",
+            "amd ryzen 9 5900x 12-core processor||x570 aorus ultra"
+          ],
+          "verified": true,
+          "confidence": "high",
+          "noisy": false,
+          "total_attempts": 19,
+          "ok_attempts": 10,
+          "success_rate_pct": 52.6,
+          "status_breakdown": {
+            "OK": 10,
+            "LLAMA_BENCH_FAILED": 9
+          },
+          "drivers": [
+            "570.181",
+            "580.126.09"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 4
+          },
+          "data_source_counts": {
+            "vastai": 4
+          },
+          "gpu_power_avg_w": 187.9,
+          "gpu_clock_avg_mhz": 2380.2,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.963,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": null,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 62.7,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "llama3.1:8b": {
+          "median_tokens_per_sec": 141.5,
+          "mean_tokens_per_sec": 154.5,
+          "min_tokens_per_sec": 138.2,
+          "max_tokens_per_sec": 174.6,
+          "std_dev": 17.5,
+          "cv_pct": 11.3,
+          "samples": 9,
+          "samples_throttled": 0,
+          "machine_configs_count": 4,
+          "machine_configs": [
+            "11th gen intel(r) core(tm) i5-11600kf @ 3.90ghz||prime z590-a",
+            "amd ryzen 9 5900x 12-core processor||x570 aorus ultra",
+            "amd ryzen 9 7950x 16-core processor||mpg x670e carbon wifi (ms-7d70)",
+            "amd ryzen threadripper pro 5955wx 16-cores||wrx80 creator"
+          ],
+          "verified": true,
+          "confidence": "medium",
+          "noisy": true,
+          "total_attempts": 16,
+          "ok_attempts": 16,
+          "success_rate_pct": 100.0,
+          "status_breakdown": {
+            "OK": 16
+          },
+          "drivers": [
+            "560.35.03",
+            "570.181",
+            "580.126.09"
+          ],
+          "ollama_versions": [
+            "0.17.7",
+            "0.6.2"
+          ],
+          "source_format_counts": {
+            "structured": 9
+          },
+          "data_source_counts": {
+            "vastai": 9
+          },
+          "gpu_power_avg_w": 317.4,
+          "gpu_clock_avg_mhz": 2761.7,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.446,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": 0.0,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 62.7,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "llama3.2:3b": {
+          "median_tokens_per_sec": 334.9,
+          "mean_tokens_per_sec": 333.8,
+          "min_tokens_per_sec": 326.2,
+          "max_tokens_per_sec": 339.2,
+          "std_dev": 5.5,
+          "cv_pct": 1.6,
+          "samples": 4,
+          "samples_throttled": 1,
+          "machine_configs_count": 2,
+          "machine_configs": [
+            "11th gen intel(r) core(tm) i5-11600kf @ 3.90ghz||prime z590-a",
+            "amd ryzen 9 5900x 12-core processor||x570 aorus ultra"
+          ],
+          "verified": true,
+          "confidence": "high",
+          "noisy": false,
+          "total_attempts": 5,
+          "ok_attempts": 5,
+          "success_rate_pct": 100.0,
+          "status_breakdown": {
+            "OK": 5
+          },
+          "drivers": [
+            "570.181",
+            "580.126.09"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 4
+          },
+          "data_source_counts": {
+            "vastai": 4
+          },
+          "gpu_power_avg_w": 246.4,
+          "gpu_clock_avg_mhz": 2736.2,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 1.359,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": 0.0,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 62.7,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "mistral-nemo:12b": {
+          "median_tokens_per_sec": 121.5,
+          "mean_tokens_per_sec": 121.5,
+          "min_tokens_per_sec": 119.7,
+          "max_tokens_per_sec": 123.2,
+          "std_dev": 2.5,
+          "cv_pct": 2.0,
+          "samples": 2,
+          "samples_throttled": 0,
+          "machine_configs_count": 2,
+          "machine_configs": [
+            "11th gen intel(r) core(tm) i5-11600kf @ 3.90ghz||prime z590-a",
+            "amd ryzen 9 5900x 12-core processor||x570 aorus ultra"
+          ],
+          "verified": true,
+          "confidence": "high",
+          "noisy": false,
+          "total_attempts": 2,
+          "ok_attempts": 2,
+          "success_rate_pct": 100.0,
+          "status_breakdown": {
+            "OK": 2
+          },
+          "drivers": [
+            "570.181",
+            "580.126.09"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 2
+          },
+          "data_source_counts": {
+            "vastai": 2
+          },
+          "gpu_power_avg_w": 286.6,
+          "gpu_clock_avg_mhz": 2747.5,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.424,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": 0.0,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 62.7,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "mistral-small:24b": {
+          "median_tokens_per_sec": 64.0,
+          "mean_tokens_per_sec": 63.6,
+          "min_tokens_per_sec": 62.4,
+          "max_tokens_per_sec": 64.2,
+          "std_dev": 0.8,
+          "cv_pct": 1.3,
+          "samples": 4,
+          "samples_throttled": 0,
+          "machine_configs_count": 2,
+          "machine_configs": [
+            "11th gen intel(r) core(tm) i5-11600kf @ 3.90ghz||prime z590-a",
+            "amd ryzen 9 5900x 12-core processor||x570 aorus ultra"
+          ],
+          "verified": true,
+          "confidence": "high",
+          "noisy": false,
+          "total_attempts": 5,
+          "ok_attempts": 5,
+          "success_rate_pct": 100.0,
+          "status_breakdown": {
+            "OK": 5
+          },
+          "drivers": [
+            "570.181",
+            "580.126.09"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 4
+          },
+          "data_source_counts": {
+            "vastai": 4
+          },
+          "gpu_power_avg_w": 349.1,
+          "gpu_clock_avg_mhz": 2742.2,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.183,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": 0.0,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 62.7,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "phi4-reasoning:14b": {
+          "median_tokens_per_sec": 80.4,
+          "mean_tokens_per_sec": 80.4,
+          "min_tokens_per_sec": 79.3,
+          "max_tokens_per_sec": 81.6,
+          "std_dev": 1.6,
+          "cv_pct": 2.0,
+          "samples": 2,
+          "samples_throttled": 0,
+          "machine_configs_count": 2,
+          "machine_configs": [
+            "11th gen intel(r) core(tm) i5-11600kf @ 3.90ghz||prime z590-a",
+            "amd ryzen 9 5900x 12-core processor||x570 aorus ultra"
+          ],
+          "verified": true,
+          "confidence": "high",
+          "noisy": false,
+          "total_attempts": 2,
+          "ok_attempts": 2,
+          "success_rate_pct": 100.0,
+          "status_breakdown": {
+            "OK": 2
+          },
+          "drivers": [
+            "570.181",
+            "580.126.09"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 2
+          },
+          "data_source_counts": {
+            "vastai": 2
+          },
+          "gpu_power_avg_w": 342.9,
+          "gpu_clock_avg_mhz": 2745.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.235,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": 0.0,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 62.7,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "qwen3.5:27b": {
+          "median_tokens_per_sec": 22.9,
+          "mean_tokens_per_sec": 22.9,
+          "min_tokens_per_sec": 22.9,
+          "max_tokens_per_sec": 22.9,
+          "std_dev": 0.0,
+          "cv_pct": 0.0,
+          "samples": 1,
+          "samples_throttled": 1,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "11th gen intel(r) core(tm) i5-11600kf @ 3.90ghz||prime z590-a"
+          ],
+          "verified": false,
+          "confidence": "low",
+          "noisy": false,
+          "total_attempts": 2,
+          "ok_attempts": 1,
+          "success_rate_pct": 50.0,
+          "status_breakdown": {
+            "OK": 1,
+            "NO_OUTPUT": 1
+          },
+          "drivers": [
+            "580.126.09"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 1
+          },
+          "data_source_counts": {
+            "vastai": 1
+          },
+          "gpu_power_avg_w": 192.5,
+          "gpu_clock_avg_mhz": 2670.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.119,
+          "host_platform": "consumer",
+          "inference_type": "cpu_offload",
+          "offload_ratio": 0.88,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 62.7,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "qwen3.5:4b": {
+          "median_tokens_per_sec": 168.4,
+          "mean_tokens_per_sec": 168.4,
+          "min_tokens_per_sec": 168.4,
+          "max_tokens_per_sec": 168.4,
+          "std_dev": 0.0,
+          "cv_pct": 0.0,
+          "samples": 1,
+          "samples_throttled": 1,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "11th gen intel(r) core(tm) i5-11600kf @ 3.90ghz||prime z590-a"
+          ],
+          "verified": false,
+          "confidence": "low",
+          "noisy": false,
+          "total_attempts": 2,
+          "ok_attempts": 1,
+          "success_rate_pct": 50.0,
+          "status_breakdown": {
+            "OK": 1,
+            "NO_OUTPUT": 1
+          },
+          "drivers": [
+            "580.126.09"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 1
+          },
+          "data_source_counts": {
+            "vastai": 1
+          },
+          "gpu_power_avg_w": 203.7,
+          "gpu_clock_avg_mhz": 2670.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.827,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": 0.0,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 62.7,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "qwen3.5:9b": {
+          "median_tokens_per_sec": 118.9,
+          "mean_tokens_per_sec": 118.9,
+          "min_tokens_per_sec": 118.9,
+          "max_tokens_per_sec": 118.9,
+          "std_dev": 0.0,
+          "cv_pct": 0.0,
+          "samples": 1,
+          "samples_throttled": 1,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "11th gen intel(r) core(tm) i5-11600kf @ 3.90ghz||prime z590-a"
+          ],
+          "verified": false,
+          "confidence": "low",
+          "noisy": false,
+          "total_attempts": 5,
+          "ok_attempts": 1,
+          "success_rate_pct": 20.0,
+          "status_breakdown": {
+            "OK": 1,
+            "NO_OUTPUT": 2,
+            "PULL_FAILED": 2
+          },
+          "drivers": [
+            "580.126.09"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 1
+          },
+          "data_source_counts": {
+            "vastai": 1
+          },
+          "gpu_power_avg_w": 245.1,
+          "gpu_clock_avg_mhz": 2681.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.485,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": 0.0,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 62.7,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        }
+      }
+    },
+    {
+      "name": "RTX 5080",
+      "vram_gb": 16,
+      "retail_usd": 999,
+      "used_usd": 900,
+      "tps_per_dollar_retail": 0.148,
+      "tps_per_dollar_used": 0.165,
+      "tps_reference_model": "llama3.1:8b",
+      "benchmarks": {
+        "deepseek-r1:14b": {
+          "median_tokens_per_sec": 90.4,
+          "mean_tokens_per_sec": 90.4,
+          "min_tokens_per_sec": 90.4,
+          "max_tokens_per_sec": 90.5,
+          "std_dev": 0.1,
+          "cv_pct": 0.1,
+          "samples": 2,
+          "samples_throttled": 0,
+          "machine_configs_count": 2,
+          "machine_configs": [
+            "amd ryzen 9 7945hx with radeon graphics||f1fxm",
+            "intel(r) core(tm) i5-14500||imb-x1316"
+          ],
+          "verified": true,
+          "confidence": "high",
+          "noisy": false,
+          "total_attempts": 3,
+          "ok_attempts": 2,
+          "success_rate_pct": 66.7,
+          "status_breakdown": {
+            "NO_OUTPUT": 1,
+            "OK": 2
+          },
+          "drivers": [
+            "580.126.09",
+            "580.95.05"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 2
+          },
+          "data_source_counts": {
+            "vastai": 2
+          },
+          "gpu_power_avg_w": 273.0,
+          "gpu_clock_avg_mhz": 2878.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.331,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": 0.0,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 77.8,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "deepseek-r1:32b": {
+          "median_tokens_per_sec": 8.8,
+          "mean_tokens_per_sec": 8.8,
+          "min_tokens_per_sec": 8.8,
+          "max_tokens_per_sec": 8.8,
+          "std_dev": 0.0,
+          "cv_pct": 0.0,
+          "samples": 1,
+          "samples_throttled": 1,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "amd ryzen 9 7945hx with radeon graphics||f1fxm"
+          ],
+          "verified": false,
+          "confidence": "low",
+          "noisy": false,
+          "total_attempts": 1,
+          "ok_attempts": 1,
+          "success_rate_pct": 100.0,
+          "status_breakdown": {
+            "OK": 1
+          },
+          "drivers": [
+            "580.126.09"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 1
+          },
+          "data_source_counts": {
+            "vastai": 1
+          },
+          "gpu_power_avg_w": 87.0,
+          "gpu_clock_avg_mhz": 2738.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.101,
+          "host_platform": "consumer",
+          "inference_type": "cpu_offload",
+          "offload_ratio": 0.74,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 30.1,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "deepseek-r1:7b": {
+          "median_tokens_per_sec": 154.9,
+          "mean_tokens_per_sec": 159.8,
+          "min_tokens_per_sec": 154.1,
+          "max_tokens_per_sec": 175.2,
+          "std_dev": 10.3,
+          "cv_pct": 6.4,
+          "samples": 4,
+          "samples_throttled": 0,
+          "machine_configs_count": 2,
+          "machine_configs": [
+            "amd ryzen 5 9600x 6-core processor||prime b850-plus wifi",
+            "amd ryzen 9 7945hx with radeon graphics||f1fxm"
+          ],
+          "verified": true,
+          "confidence": "high",
+          "noisy": false,
+          "total_attempts": 4,
+          "ok_attempts": 4,
+          "success_rate_pct": 100.0,
+          "status_breakdown": {
+            "OK": 4
+          },
+          "drivers": [
+            "580.126.09"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 4
+          },
+          "data_source_counts": {
+            "vastai": 4
+          },
+          "gpu_power_avg_w": 270.2,
+          "gpu_clock_avg_mhz": 2850.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.573,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": 0.0,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 31.0,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "gemma3:4b": {
+          "median_tokens_per_sec": 208.3,
+          "mean_tokens_per_sec": 208.3,
+          "min_tokens_per_sec": 208.3,
+          "max_tokens_per_sec": 208.3,
+          "std_dev": 0.0,
+          "cv_pct": 0.0,
+          "samples": 1,
+          "samples_throttled": 1,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "amd ryzen 9 7945hx with radeon graphics||f1fxm"
+          ],
+          "verified": false,
+          "confidence": "low",
+          "noisy": false,
+          "total_attempts": 1,
+          "ok_attempts": 1,
+          "success_rate_pct": 100.0,
+          "status_breakdown": {
+            "OK": 1
+          },
+          "drivers": [
+            "580.126.09"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 1
+          },
+          "data_source_counts": {
+            "vastai": 1
+          },
+          "gpu_power_avg_w": 157.1,
+          "gpu_clock_avg_mhz": 2857.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 1.326,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": 0.0,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 30.1,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "llama-2-7b-Q4_0": {
+          "median_tokens_per_sec": 165.6,
+          "mean_tokens_per_sec": 165.6,
+          "min_tokens_per_sec": 162.7,
+          "max_tokens_per_sec": 168.4,
+          "std_dev": 4.1,
+          "cv_pct": 2.5,
+          "samples": 2,
+          "samples_throttled": 2,
+          "machine_configs_count": 2,
+          "machine_configs": [
+            "amd ryzen 9 7945hx with radeon graphics||f1fxm",
+            "intel(r) core(tm) i5-14500||imb-x1316"
+          ],
+          "verified": true,
+          "confidence": "high",
+          "noisy": false,
+          "total_attempts": 4,
+          "ok_attempts": 2,
+          "success_rate_pct": 50.0,
+          "status_breakdown": {
+            "OK": 2,
+            "LLAMA_BENCH_FAILED": 2
+          },
+          "drivers": [
+            "580.126.09",
+            "580.95.05"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 2
+          },
+          "data_source_counts": {
+            "vastai": 2
+          },
+          "gpu_power_avg_w": 63.3,
+          "gpu_clock_avg_mhz": 2661.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 2.616,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": null,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 77.8,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "llama3.1:8b": {
+          "median_tokens_per_sec": 148.2,
+          "mean_tokens_per_sec": 153.6,
+          "min_tokens_per_sec": 146.2,
+          "max_tokens_per_sec": 163.6,
+          "std_dev": 9.0,
+          "cv_pct": 5.9,
+          "samples": 5,
+          "samples_throttled": 0,
+          "machine_configs_count": 3,
+          "machine_configs": [
+            "amd ryzen 5 9600x 6-core processor||prime b850-plus wifi",
+            "amd ryzen 9 7945hx with radeon graphics||f1fxm",
+            "intel(r) core(tm) i5-14500||imb-x1316"
+          ],
+          "verified": true,
+          "confidence": "high",
+          "noisy": false,
+          "total_attempts": 6,
+          "ok_attempts": 6,
+          "success_rate_pct": 100.0,
+          "status_breakdown": {
+            "OK": 6
+          },
+          "drivers": [
+            "580.126.09",
+            "580.95.05"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 5
+          },
+          "data_source_counts": {
+            "vastai": 5
+          },
+          "gpu_power_avg_w": 262.8,
+          "gpu_clock_avg_mhz": 2883.5,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.564,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": 0.0,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 31.0,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "llama3.2:3b": {
+          "median_tokens_per_sec": 324.9,
+          "mean_tokens_per_sec": 324.9,
+          "min_tokens_per_sec": 323.6,
+          "max_tokens_per_sec": 326.3,
+          "std_dev": 1.9,
+          "cv_pct": 0.6,
+          "samples": 2,
+          "samples_throttled": 2,
+          "machine_configs_count": 2,
+          "machine_configs": [
+            "amd ryzen 9 7945hx with radeon graphics||f1fxm",
+            "intel(r) core(tm) i5-14500||imb-x1316"
+          ],
+          "verified": true,
+          "confidence": "high",
+          "noisy": false,
+          "total_attempts": 3,
+          "ok_attempts": 3,
+          "success_rate_pct": 100.0,
+          "status_breakdown": {
+            "OK": 3
+          },
+          "drivers": [
+            "580.126.09",
+            "580.95.05"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 2
+          },
+          "data_source_counts": {
+            "vastai": 2
+          },
+          "gpu_power_avg_w": 72.9,
+          "gpu_clock_avg_mhz": 2750.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 4.457,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": 0.0,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 77.8,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "mistral-nemo:12b": {
+          "median_tokens_per_sec": 114.9,
+          "mean_tokens_per_sec": 114.9,
+          "min_tokens_per_sec": 114.9,
+          "max_tokens_per_sec": 114.9,
+          "std_dev": 0.0,
+          "cv_pct": 0.0,
+          "samples": 1,
+          "samples_throttled": 0,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "amd ryzen 9 7945hx with radeon graphics||f1fxm"
+          ],
+          "verified": false,
+          "confidence": "low",
+          "noisy": false,
+          "total_attempts": 1,
+          "ok_attempts": 1,
+          "success_rate_pct": 100.0,
+          "status_breakdown": {
+            "OK": 1
+          },
+          "drivers": [
+            "580.126.09"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 1
+          },
+          "data_source_counts": {
+            "vastai": 1
+          },
+          "gpu_power_avg_w": 233.8,
+          "gpu_clock_avg_mhz": 2857.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.491,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": 0.0,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 30.1,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "mistral-small:24b": {
+          "median_tokens_per_sec": 60.0,
+          "mean_tokens_per_sec": 60.0,
+          "min_tokens_per_sec": 60.0,
+          "max_tokens_per_sec": 60.0,
+          "std_dev": 0.0,
+          "cv_pct": 0.1,
+          "samples": 2,
+          "samples_throttled": 0,
+          "machine_configs_count": 2,
+          "machine_configs": [
+            "amd ryzen 9 7945hx with radeon graphics||f1fxm",
+            "intel(r) core(tm) i5-14500||imb-x1316"
+          ],
+          "verified": true,
+          "confidence": "high",
+          "noisy": false,
+          "total_attempts": 3,
+          "ok_attempts": 3,
+          "success_rate_pct": 100.0,
+          "status_breakdown": {
+            "OK": 3
+          },
+          "drivers": [
+            "580.126.09",
+            "580.95.05"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 2
+          },
+          "data_source_counts": {
+            "vastai": 2
+          },
+          "gpu_power_avg_w": 290.9,
+          "gpu_clock_avg_mhz": 2880.5,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.206,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": 0.0,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 77.8,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "phi4-reasoning:14b": {
+          "median_tokens_per_sec": 75.9,
+          "mean_tokens_per_sec": 75.9,
+          "min_tokens_per_sec": 75.9,
+          "max_tokens_per_sec": 75.9,
+          "std_dev": 0.0,
+          "cv_pct": 0.0,
+          "samples": 1,
+          "samples_throttled": 0,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "amd ryzen 9 7945hx with radeon graphics||f1fxm"
+          ],
+          "verified": false,
+          "confidence": "low",
+          "noisy": false,
+          "total_attempts": 1,
+          "ok_attempts": 1,
+          "success_rate_pct": 100.0,
+          "status_breakdown": {
+            "OK": 1
+          },
+          "drivers": [
+            "580.126.09"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 1
+          },
+          "data_source_counts": {
+            "vastai": 1
+          },
+          "gpu_power_avg_w": 278.6,
+          "gpu_clock_avg_mhz": 2850.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.272,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": 0.0,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 30.1,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "qwen3.5:27b": {
+          "median_tokens_per_sec": 6.2,
+          "mean_tokens_per_sec": 6.2,
+          "min_tokens_per_sec": 6.2,
+          "max_tokens_per_sec": 6.2,
+          "std_dev": 0.0,
+          "cv_pct": 0.0,
+          "samples": 1,
+          "samples_throttled": 1,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "amd ryzen 9 7945hx with radeon graphics||f1fxm"
+          ],
+          "verified": false,
+          "confidence": "low",
+          "noisy": false,
+          "total_attempts": 1,
+          "ok_attempts": 1,
+          "success_rate_pct": 100.0,
+          "status_breakdown": {
+            "OK": 1
+          },
+          "drivers": [
+            "580.126.09"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 1
+          },
+          "data_source_counts": {
+            "vastai": 1
+          },
+          "gpu_power_avg_w": 71.3,
+          "gpu_clock_avg_mhz": 2746.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.087,
+          "host_platform": "consumer",
+          "inference_type": "cpu_offload",
+          "offload_ratio": 0.62,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 30.1,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "qwen3.5:4b": {
+          "median_tokens_per_sec": 158.9,
+          "mean_tokens_per_sec": 158.9,
+          "min_tokens_per_sec": 158.9,
+          "max_tokens_per_sec": 158.9,
+          "std_dev": 0.0,
+          "cv_pct": 0.0,
+          "samples": 1,
+          "samples_throttled": 1,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "amd ryzen 9 7945hx with radeon graphics||f1fxm"
+          ],
+          "verified": false,
+          "confidence": "low",
+          "noisy": false,
+          "total_attempts": 2,
+          "ok_attempts": 1,
+          "success_rate_pct": 50.0,
+          "status_breakdown": {
+            "NO_OUTPUT": 1,
+            "OK": 1
+          },
+          "drivers": [
+            "580.126.09"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 1
+          },
+          "data_source_counts": {
+            "vastai": 1
+          },
+          "gpu_power_avg_w": 162.8,
+          "gpu_clock_avg_mhz": 2860.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.976,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": 0.0,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 30.1,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "qwen3.5:9b": {
+          "median_tokens_per_sec": 113.6,
+          "mean_tokens_per_sec": 113.6,
+          "min_tokens_per_sec": 113.6,
+          "max_tokens_per_sec": 113.6,
+          "std_dev": 0.0,
+          "cv_pct": 0.0,
+          "samples": 1,
+          "samples_throttled": 1,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "amd ryzen 9 7945hx with radeon graphics||f1fxm"
+          ],
+          "verified": false,
+          "confidence": "low",
+          "noisy": false,
+          "total_attempts": 2,
+          "ok_attempts": 1,
+          "success_rate_pct": 50.0,
+          "status_breakdown": {
+            "NO_OUTPUT": 1,
+            "OK": 1
+          },
+          "drivers": [
+            "580.126.09"
+          ],
+          "ollama_versions": [
+            "0.17.7"
+          ],
+          "source_format_counts": {
+            "structured": 1
+          },
+          "data_source_counts": {
+            "vastai": 1
+          },
+          "gpu_power_avg_w": 198.1,
+          "gpu_clock_avg_mhz": 2852.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.574,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": 0.0,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 30.1,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        }
+      }
+    },
+    {
+      "name": "RTX 5070 Ti",
+      "vram_gb": 16,
+      "retail_usd": 749,
+      "used_usd": 700,
+      "tps_per_dollar_retail": 0.17,
+      "tps_per_dollar_used": 0.182,
+      "tps_reference_model": "llama3.1:8b",
+      "benchmarks": {
+        "deepseek-r1:14b": {
+          "median_tokens_per_sec": 72.8,
+          "mean_tokens_per_sec": 72.8,
+          "min_tokens_per_sec": 72.8,
+          "max_tokens_per_sec": 72.8,
+          "std_dev": 0.0,
+          "cv_pct": 0.0,
+          "samples": 1,
+          "samples_throttled": 0,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "amd ryzen 7 5700x 8-core processor||x570 creator"
+          ],
+          "verified": false,
+          "confidence": "low",
+          "noisy": false,
+          "total_attempts": 1,
+          "ok_attempts": 1,
+          "success_rate_pct": 100.0,
+          "status_breakdown": {
+            "OK": 1
+          },
+          "drivers": [
+            "590.48.01"
+          ],
+          "ollama_versions": [
+            "0.5.7"
+          ],
+          "source_format_counts": {
+            "structured": 1
+          },
+          "data_source_counts": {
+            "vastai": 1
+          },
+          "gpu_power_avg_w": 199.7,
+          "gpu_clock_avg_mhz": 2817.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.365,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": null,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 62.7,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "llama-2-7b-Q4_0": {
+          "median_tokens_per_sec": 158.8,
+          "mean_tokens_per_sec": 158.8,
+          "min_tokens_per_sec": 158.8,
+          "max_tokens_per_sec": 158.8,
+          "std_dev": 0.0,
+          "cv_pct": 0.0,
+          "samples": 1,
+          "samples_throttled": 1,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "amd ryzen 7 5700x 8-core processor||x570 creator"
+          ],
+          "verified": false,
+          "confidence": "low",
+          "noisy": false,
+          "total_attempts": 1,
+          "ok_attempts": 1,
+          "success_rate_pct": 100.0,
+          "status_breakdown": {
+            "OK": 1
+          },
+          "drivers": [
+            "590.48.01"
+          ],
+          "ollama_versions": [
+            "0.5.7"
+          ],
+          "source_format_counts": {
+            "structured": 1
+          },
+          "data_source_counts": {
+            "vastai": 1
+          },
+          "gpu_power_avg_w": 61.9,
+          "gpu_clock_avg_mhz": 2517.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 2.566,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": null,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 62.7,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "llama3.1:8b": {
+          "median_tokens_per_sec": 127.3,
+          "mean_tokens_per_sec": 127.3,
+          "min_tokens_per_sec": 127.3,
+          "max_tokens_per_sec": 127.3,
+          "std_dev": 0.0,
+          "cv_pct": 0.0,
+          "samples": 1,
+          "samples_throttled": 1,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "amd ryzen 7 5700x 8-core processor||x570 creator"
+          ],
+          "verified": false,
+          "confidence": "low",
+          "noisy": false,
+          "total_attempts": 1,
+          "ok_attempts": 1,
+          "success_rate_pct": 100.0,
+          "status_breakdown": {
+            "OK": 1
+          },
+          "drivers": [
+            "590.48.01"
+          ],
+          "ollama_versions": [
+            "0.5.7"
+          ],
+          "source_format_counts": {
+            "structured": 1
+          },
+          "data_source_counts": {
+            "vastai": 1
+          },
+          "gpu_power_avg_w": 163.1,
+          "gpu_clock_avg_mhz": 2830.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.781,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": null,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 62.7,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "llama3.2:3b": {
+          "median_tokens_per_sec": 229.7,
+          "mean_tokens_per_sec": 229.7,
+          "min_tokens_per_sec": 229.7,
+          "max_tokens_per_sec": 229.7,
+          "std_dev": 0.0,
+          "cv_pct": 0.0,
+          "samples": 1,
+          "samples_throttled": 1,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "amd ryzen 7 5700x 8-core processor||x570 creator"
+          ],
+          "verified": false,
+          "confidence": "low",
+          "noisy": false,
+          "total_attempts": 1,
+          "ok_attempts": 1,
+          "success_rate_pct": 100.0,
+          "status_breakdown": {
+            "OK": 1
+          },
+          "drivers": [
+            "590.48.01"
+          ],
+          "ollama_versions": [
+            "0.5.7"
+          ],
+          "source_format_counts": {
+            "structured": 1
+          },
+          "data_source_counts": {
+            "vastai": 1
+          },
+          "gpu_power_avg_w": 124.2,
+          "gpu_clock_avg_mhz": 2846.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 1.85,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": null,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 62.7,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "llama3.3:70b": {
+          "median_tokens_per_sec": 1.4,
+          "mean_tokens_per_sec": 1.4,
+          "min_tokens_per_sec": 1.4,
+          "max_tokens_per_sec": 1.4,
+          "std_dev": 0.0,
+          "cv_pct": 0.0,
+          "samples": 1,
+          "samples_throttled": 1,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "amd ryzen 7 5700x 8-core processor||x570 creator"
+          ],
+          "verified": false,
+          "confidence": "low",
+          "noisy": false,
+          "total_attempts": 1,
+          "ok_attempts": 1,
+          "success_rate_pct": 100.0,
+          "status_breakdown": {
+            "OK": 1
+          },
+          "drivers": [
+            "590.48.01"
+          ],
+          "ollama_versions": [
+            "0.5.7"
+          ],
+          "source_format_counts": {
+            "structured": 1
+          },
+          "data_source_counts": {
+            "vastai": 1
+          },
+          "gpu_power_avg_w": 44.6,
+          "gpu_clock_avg_mhz": 2485.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.03,
+          "host_platform": "consumer",
+          "inference_type": "cpu_offload",
+          "offload_ratio": null,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 62.7,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "mistral-small:24b": {
+          "median_tokens_per_sec": 51.2,
+          "mean_tokens_per_sec": 51.2,
+          "min_tokens_per_sec": 51.2,
+          "max_tokens_per_sec": 51.2,
+          "std_dev": 0.0,
+          "cv_pct": 0.0,
+          "samples": 1,
+          "samples_throttled": 0,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "amd ryzen 7 5700x 8-core processor||x570 creator"
+          ],
+          "verified": false,
+          "confidence": "low",
+          "noisy": false,
+          "total_attempts": 1,
+          "ok_attempts": 1,
+          "success_rate_pct": 100.0,
+          "status_breakdown": {
+            "OK": 1
+          },
+          "drivers": [
+            "590.48.01"
+          ],
+          "ollama_versions": [
+            "0.5.7"
+          ],
+          "source_format_counts": {
+            "structured": 1
+          },
+          "data_source_counts": {
+            "vastai": 1
+          },
+          "gpu_power_avg_w": 214.4,
+          "gpu_clock_avg_mhz": 2825.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.239,
+          "host_platform": "consumer",
+          "inference_type": "gpu_partial",
+          "offload_ratio": null,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 62.7,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "qwen2.5:32b": {
+          "median_tokens_per_sec": 6.4,
+          "mean_tokens_per_sec": 6.4,
+          "min_tokens_per_sec": 6.4,
+          "max_tokens_per_sec": 6.4,
+          "std_dev": 0.0,
+          "cv_pct": 0.0,
+          "samples": 1,
+          "samples_throttled": 1,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "amd ryzen 7 5700x 8-core processor||x570 creator"
+          ],
+          "verified": false,
+          "confidence": "low",
+          "noisy": false,
+          "total_attempts": 1,
+          "ok_attempts": 1,
+          "success_rate_pct": 100.0,
+          "status_breakdown": {
+            "OK": 1
+          },
+          "drivers": [
+            "590.48.01"
+          ],
+          "ollama_versions": [
+            "0.5.7"
+          ],
+          "source_format_counts": {
+            "structured": 1
+          },
+          "data_source_counts": {
+            "vastai": 1
+          },
+          "gpu_power_avg_w": 63.1,
+          "gpu_clock_avg_mhz": 2522.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.101,
+          "host_platform": "consumer",
+          "inference_type": "cpu_offload",
+          "offload_ratio": null,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 62.7,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        }
+      }
+    },
+    {
+      "name": "RTX 3080",
+      "vram_gb": 10,
+      "retail_usd": null,
+      "used_usd": 400,
+      "tps_per_dollar_retail": null,
+      "tps_per_dollar_used": 0.23,
+      "tps_reference_model": "llama3.1:8b",
+      "benchmarks": {
+        "deepseek-r1:14b": {
+          "median_tokens_per_sec": 26.8,
+          "mean_tokens_per_sec": 26.8,
+          "min_tokens_per_sec": 26.8,
+          "max_tokens_per_sec": 26.8,
+          "std_dev": 0.0,
+          "cv_pct": 0.0,
+          "samples": 1,
+          "samples_throttled": 1,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "amd ryzen threadripper 2920x 12-core processor||x399 aorus gaming 7"
+          ],
+          "verified": false,
+          "confidence": "low",
+          "noisy": false,
+          "total_attempts": 1,
+          "ok_attempts": 1,
+          "success_rate_pct": 100.0,
+          "status_breakdown": {
+            "OK": 1
+          },
+          "drivers": [
+            "570.153.02"
+          ],
+          "ollama_versions": [
+            "0.5.7"
+          ],
+          "source_format_counts": {
+            "structured": 1
+          },
+          "data_source_counts": {
+            "vastai": 1
+          },
+          "gpu_power_avg_w": 188.6,
+          "gpu_clock_avg_mhz": 1869.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.142,
+          "host_platform": "consumer",
+          "inference_type": "gpu_partial",
+          "offload_ratio": null,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 62.6,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "llama3.1:8b": {
+          "median_tokens_per_sec": 92.1,
+          "mean_tokens_per_sec": 92.1,
+          "min_tokens_per_sec": 92.1,
+          "max_tokens_per_sec": 92.1,
+          "std_dev": 0.0,
+          "cv_pct": 0.0,
+          "samples": 1,
+          "samples_throttled": 0,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "amd ryzen threadripper 2920x 12-core processor||x399 aorus gaming 7"
+          ],
+          "verified": false,
+          "confidence": "low",
+          "noisy": false,
+          "total_attempts": 1,
+          "ok_attempts": 1,
+          "success_rate_pct": 100.0,
+          "status_breakdown": {
+            "OK": 1
+          },
+          "drivers": [
+            "570.153.02"
+          ],
+          "ollama_versions": [
+            "0.5.7"
+          ],
+          "source_format_counts": {
+            "structured": 1
+          },
+          "data_source_counts": {
+            "vastai": 1
+          },
+          "gpu_power_avg_w": 220.9,
+          "gpu_clock_avg_mhz": 1890.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.417,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": null,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 62.6,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "llama3.2:3b": {
+          "median_tokens_per_sec": 176.2,
+          "mean_tokens_per_sec": 171.7,
+          "min_tokens_per_sec": 155.0,
+          "max_tokens_per_sec": 183.8,
+          "std_dev": 15.0,
+          "cv_pct": 8.7,
+          "samples": 3,
+          "samples_throttled": 1,
+          "machine_configs_count": 2,
+          "machine_configs": [
+            "amd ryzen 9 5900x 12-core processor||x570 taichi",
+            "amd ryzen threadripper 2920x 12-core processor||x399 aorus gaming 7"
+          ],
+          "verified": true,
+          "confidence": "high",
+          "noisy": false,
+          "total_attempts": 3,
+          "ok_attempts": 3,
+          "success_rate_pct": 100.0,
+          "status_breakdown": {
+            "OK": 3
+          },
+          "drivers": [
+            "570.153.02"
+          ],
+          "ollama_versions": [
+            "0.5.7"
+          ],
+          "source_format_counts": {
+            "structured": 3
+          },
+          "data_source_counts": {
+            "vastai": 3
+          },
+          "gpu_power_avg_w": 175.2,
+          "gpu_clock_avg_mhz": 1950.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 1.006,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": null,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 62.6,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "mistral-small:24b": {
+          "median_tokens_per_sec": 4.7,
+          "mean_tokens_per_sec": 4.7,
+          "min_tokens_per_sec": 4.7,
+          "max_tokens_per_sec": 4.7,
+          "std_dev": 0.0,
+          "cv_pct": 0.0,
+          "samples": 1,
+          "samples_throttled": 1,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "amd ryzen threadripper 2920x 12-core processor||x399 aorus gaming 7"
+          ],
+          "verified": false,
+          "confidence": "low",
+          "noisy": false,
+          "total_attempts": 1,
+          "ok_attempts": 1,
+          "success_rate_pct": 100.0,
+          "status_breakdown": {
+            "OK": 1
+          },
+          "drivers": [
+            "570.153.02"
+          ],
+          "ollama_versions": [
+            "0.5.7"
+          ],
+          "source_format_counts": {
+            "structured": 1
+          },
+          "data_source_counts": {
+            "vastai": 1
+          },
+          "gpu_power_avg_w": 110.6,
+          "gpu_clock_avg_mhz": 1710.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.043,
+          "host_platform": "consumer",
+          "inference_type": "cpu_offload",
+          "offload_ratio": null,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 62.6,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "qwen2.5:32b": {
+          "median_tokens_per_sec": 2.2,
+          "mean_tokens_per_sec": 2.2,
+          "min_tokens_per_sec": 2.2,
+          "max_tokens_per_sec": 2.2,
+          "std_dev": 0.0,
+          "cv_pct": 0.0,
+          "samples": 1,
+          "samples_throttled": 1,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "amd ryzen threadripper 2920x 12-core processor||x399 aorus gaming 7"
+          ],
+          "verified": false,
+          "confidence": "low",
+          "noisy": false,
+          "total_attempts": 1,
+          "ok_attempts": 1,
+          "success_rate_pct": 100.0,
+          "status_breakdown": {
+            "OK": 1
+          },
+          "drivers": [
+            "570.153.02"
+          ],
+          "ollama_versions": [
+            "0.5.7"
+          ],
+          "source_format_counts": {
+            "structured": 1
+          },
+          "data_source_counts": {
+            "vastai": 1
+          },
+          "gpu_power_avg_w": 103.8,
+          "gpu_clock_avg_mhz": 1710.0,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": 0.021,
+          "host_platform": "consumer",
+          "inference_type": "cpu_offload",
+          "offload_ratio": null,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 62.6,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "qwen2.5:7b": {
+          "median_tokens_per_sec": 109.8,
+          "mean_tokens_per_sec": 109.8,
+          "min_tokens_per_sec": 109.3,
+          "max_tokens_per_sec": 110.3,
+          "std_dev": 0.7,
+          "cv_pct": 0.6,
+          "samples": 2,
+          "samples_throttled": 0,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "amd ryzen 9 5900x 12-core processor||x570 taichi"
+          ],
+          "verified": false,
+          "confidence": "medium",
+          "noisy": false,
+          "total_attempts": 2,
+          "ok_attempts": 2,
+          "success_rate_pct": 100.0,
+          "status_breakdown": {
+            "OK": 2
+          },
+          "drivers": [],
+          "ollama_versions": [],
+          "source_format_counts": {
+            "structured": 2
+          },
+          "data_source_counts": {
+            "vastai": 2
+          },
+          "gpu_power_avg_w": null,
+          "gpu_clock_avg_mhz": null,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": null,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": null,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": null,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        }
+      }
+    },
+    {
+      "name": "RTX 4070",
+      "vram_gb": 12,
+      "retail_usd": 549,
+      "used_usd": 400,
+      "tps_per_dollar_retail": 0.143,
+      "tps_per_dollar_used": 0.196,
+      "tps_reference_model": "llama3.1:8b",
+      "benchmarks": {
+        "deepseek-r1:7b": {
+          "median_tokens_per_sec": 80.3,
+          "mean_tokens_per_sec": 80.2,
+          "min_tokens_per_sec": 78.9,
+          "max_tokens_per_sec": 81.1,
+          "std_dev": 0.7,
+          "cv_pct": 0.9,
+          "samples": 12,
+          "samples_throttled": 0,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "amd ryzen 9 3950x 16-core processor||rog strix b550-e gaming"
+          ],
+          "verified": false,
+          "confidence": "medium",
+          "noisy": false,
+          "total_attempts": 12,
+          "ok_attempts": 12,
+          "success_rate_pct": 100.0,
+          "status_breakdown": {
+            "OK": 12
+          },
+          "drivers": [],
+          "ollama_versions": [],
+          "source_format_counts": {
+            "structured": 12
+          },
+          "data_source_counts": {
+            "vastai": 12
+          },
+          "gpu_power_avg_w": null,
+          "gpu_clock_avg_mhz": null,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": null,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": null,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 125.7,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        },
+        "llama3.1:8b": {
+          "median_tokens_per_sec": 78.4,
+          "mean_tokens_per_sec": 78.4,
+          "min_tokens_per_sec": 77.1,
+          "max_tokens_per_sec": 79.2,
+          "std_dev": 0.6,
+          "cv_pct": 0.8,
+          "samples": 11,
+          "samples_throttled": 0,
+          "machine_configs_count": 1,
+          "machine_configs": [
+            "amd ryzen 9 3950x 16-core processor||rog strix b550-e gaming"
+          ],
+          "verified": false,
+          "confidence": "medium",
+          "noisy": false,
+          "total_attempts": 12,
+          "ok_attempts": 12,
+          "success_rate_pct": 100.0,
+          "status_breakdown": {
+            "OK": 12
+          },
+          "drivers": [],
+          "ollama_versions": [],
+          "source_format_counts": {
+            "structured": 12
+          },
+          "data_source_counts": {
+            "vastai": 12
+          },
+          "gpu_power_avg_w": null,
+          "gpu_clock_avg_mhz": null,
+          "pcie_gen": null,
+          "pcie_width": null,
+          "efficiency_tok_per_watt": null,
+          "host_platform": "consumer",
+          "inference_type": "gpu_full",
+          "offload_ratio": null,
+          "gpu_layers": null,
+          "total_layers": null,
+          "system_ram_gb": 125.7,
+          "ram_type": null,
+          "ram_speed_mts": null,
+          "ram_slots_used": null
+        }
+      }
+    }
+  ]
+}

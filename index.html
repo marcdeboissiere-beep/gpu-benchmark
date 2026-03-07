@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GPU Inference Benchmark - Find the Best GPU for LLM Speed</title>
+  <meta name="description" content="Compare GPU inference speed (tokens/second) across open-source LLMs. Find the best GPU for your budget and performance needs.">
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <style>
+    .affiliate-disclosure-inline {
+      font-size: 0.75rem;
+      color: #64748b;
+      margin: 4px 0 8px;
+      padding: 6px 10px;
+      background: #f8fafc;
+      border-left: 3px solid #cbd5e1;
+      border-radius: 0 4px 4px 0;
+    }
+    .model-toggle-pill {
+      font-size: 0.72rem;
+      padding: 2px 8px;
+      border-radius: 12px;
+      cursor: pointer;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      color: #475569;
+      user-select: none;
+      transition: all 0.15s;
+    }
+    .model-toggle-pill.active {
+      background: #3b82f6;
+      color: white;
+      border-color: #3b82f6;
+    }
+
+    /* ========== VRAM CALCULATOR ========== */
+    .vram-btn {
+      padding: 8px 16px;
+      border: 2px solid #cbd5e1;
+      border-radius: 8px;
+      background: white;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.15s;
+      color: #475569;
+    }
+    .vram-btn:hover { border-color: #3b82f6; color: #3b82f6; }
+    .vram-btn.selected { background: #3b82f6; color: white; border-color: #3b82f6; }
+
+    .model-card {
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      background: white;
+    }
+    .model-card.compatible { border-color: #86efac; background: #f0fdf4; }
+    .model-card.incompatible { border-color: #fca5a5; background: #fef2f2; opacity: 0.7; }
+    .model-card .model-name { font-weight: 600; font-size: 0.9rem; }
+    .model-card .model-speed { color: #16a34a; font-size: 0.85rem; }
+    .model-card .model-vram-needed { color: #64748b; font-size: 0.75rem; }
+
+    /* ========== CPU OFFLOAD CELL STYLING ========== */
+    .cell-partial {
+      color: #d97706;  /* amber/yellow — minor offload */
+    }
+    .badge-partial {
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fcd34d;
+      font-size: 0.65em;
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+    .cell-offload {
+      color: #c2410c;  /* orange/red — heavy CPU offload */
+    }
+    .badge-offload {
+      background: #fff1ee;
+      color: #9a3412;
+      border: 1px solid #fb923c;
+      font-size: 0.65em;
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========== METHODOLOGY BANNER ========== -->
+  <div id="methodology-banner" style="background:#fffbeb; border-bottom:1px solid #fde68a; padding:10px 24px; font-size:0.85rem; color:#78350f;">
+    <strong>&#128202; About these benchmarks:</strong>
+    All results use Ollama with 2048-token context window. Performance at longer context lengths (32K, 128K) will be lower, especially for GPUs near their VRAM limit.
+    <a href="#methodology" style="color:#b45309; margin-left:4px;">Full methodology &rarr;</a>
+    <button onclick="this.parentElement.style.display='none'" style="float:right; background:none; border:none; cursor:pointer; color:#b45309; font-size:1rem;">&#10005;</button>
+  </div>
+
+  <!-- ========== HEADER ========== -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="#" class="logo">
+        <div class="logo-icon">&#9889;</div>
+        <span>GPU Bench</span>
+      </a>
+      <div class="header-controls">
+        <select id="regionSelect" class="region-select" onchange="setRegion(this.value)">
+          <option value="US">&#127482;&#127480; US</option>
+          <option value="UK">&#127468;&#127463; UK</option>
+          <option value="DE">&#127465;&#127466; DE</option>
+          <option value="FR">&#127467;&#127479; FR</option>
+          <option value="IT">&#127470;&#127481; IT</option>
+          <option value="ES">&#127466;&#127480; ES</option>
+          <option value="CA">&#127464;&#127462; CA</option>
+          <option value="JP">&#127471;&#127477; JP</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========== MAIN CONTENT ========== -->
+  <main class="main">
+
+    <!-- HERO: GPU Recommender -->
+    <section class="card hero fade-in">
+      <h1 class="card-title">Find Your Ideal GPU for LLM Inference</h1>
+      <p class="card-subtitle">
+        Real-world benchmarks across <strong id="gpuCount">--</strong> GPUs and <strong id="modelCount">--</strong> models.
+        Select your model, speed target, and budget to get a recommendation.
+      </p>
+
+      <div class="recommender-grid">
+        <div class="control-group">
+          <label class="control-label">Model</label>
+          <select id="modelSelect" class="model-select"></select>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label">Min Speed</label>
+          <div class="slider-row">
+            <input type="range" id="speedRange" min="1" max="200" value="20" step="1">
+            <span class="slider-value" id="speedVal">20 tok/s</span>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label">Max Budget</label>
+          <div class="slider-row">
+            <input type="range" id="budgetRange" min="50" max="2000" value="800" step="25">
+            <span class="slider-value" id="budgetVal">$800</span>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label">Condition</label>
+          <div class="toggle-group">
+            <button class="toggle-btn" data-condition="new" onclick="setCondition('new')">New</button>
+            <button class="toggle-btn active" data-condition="used" onclick="setCondition('used')">Used</button>
+          </div>
+        </div>
+      </div>
+
+      <p class="affiliate-disclosure-inline">
+        <small>&#9888;&#65039; <strong>Disclosure:</strong> Links below are affiliate links. If you purchase, we earn a small commission at no extra cost to you. <a href="#methodology">Learn more.</a></small>
+      </p>
+
+      <div class="recommendations" id="recommendations">
+        <div class="loading">Loading benchmark data</div>
+      </div>
+    </section>
+
+    <!-- BENCHMARK TABLE -->
+    <section class="card fade-in">
+      <h2 class="card-title">Benchmark Results</h2>
+      <p class="card-subtitle">Tokens per second for each GPU and model combination. Click column headers to sort. GPU names link to Amazon.</p>
+
+      <div id="column-toggle" style="margin-bottom:12px;">
+        <span style="font-size:0.85rem; color:#64748b; margin-right:8px;">Show models:</span>
+        <div id="model-column-toggles" style="display:inline-flex; flex-wrap:wrap; gap:4px;">
+          <!-- Populated by JavaScript -->
+        </div>
+        <button onclick="showTopModels()" style="margin-left:8px; font-size:0.75rem; color:#3b82f6; background:none; border:1px solid #3b82f6; padding:2px 8px; border-radius:4px; cursor:pointer;">Reset to Top 5</button>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="benchmark-table">
+          <thead id="tableHead"></thead>
+          <tbody id="tableBody">
+            <tr><td colspan="20" class="loading">Loading data</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- OFFLOAD EXPLAINER -->
+    <details id="offload-explainer" style="margin:16px 0; padding:12px 16px; background:#fffbeb; border:1px solid #fde68a; border-radius:8px;">
+      <summary style="cursor:pointer; font-weight:600; color:#78350f;">
+        &#9889; About CPU-offloaded results (amber values)
+      </summary>
+      <div style="margin-top:8px; font-size:0.875rem; color:#92400e; line-height:1.6;">
+        <p>When a model is larger than your GPU's VRAM, Ollama automatically runs some layers on your CPU.
+        These results are shown in <span style="color:#d97706; font-weight:600;">amber</span> &mdash; they're valid but represent a different performance profile.</p>
+        <p><strong>What affects speed in offload mode:</strong></p>
+        <ul style="margin:4px 0; padding-left:20px;">
+          <li><strong>System RAM bandwidth</strong> &mdash; DDR5-6000 vs DDR4-3200 can double inference speed</li>
+          <li><strong>PCIe bandwidth</strong> &mdash; Data transfers between GPU and RAM (PCIe 4.0 x16 = 32 GB/s)</li>
+          <li><strong>% of model on GPU</strong> &mdash; More VRAM = more layers on fast GPU = faster overall</li>
+          <li><strong>CPU core count</strong> &mdash; Less important than RAM bandwidth for transformers</li>
+        </ul>
+        <p><strong>Is it usable?</strong> At 2&ndash;8 tok/s, many users find it acceptable for chat and creative writing &mdash;
+        about the speed of fast human reading. Not suitable for rapid iteration or long document processing.</p>
+      </div>
+    </details>
+
+    <!-- VRAM CALCULATOR -->
+    <section id="vram-calculator" style="padding:40px 24px; background:#f0f9ff; margin:0 -24px;">
+      <div style="max-width:900px; margin:0 auto;">
+        <h2 style="margin-bottom:8px;">&#129518; Can My GPU Run This Model?</h2>
+        <p style="color:#64748b; margin-bottom:24px;">Select your GPU's VRAM to see which models fit and their expected inference speed.</p>
+
+        <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:24px;">
+          <label style="font-weight:600;">My GPU VRAM:</label>
+          <div id="vram-selector" style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="vram-btn" data-vram="6" onclick="setVramFilter(6)">6 GB</button>
+            <button class="vram-btn" data-vram="8" onclick="setVramFilter(8)">8 GB</button>
+            <button class="vram-btn" data-vram="10" onclick="setVramFilter(10)">10 GB</button>
+            <button class="vram-btn" data-vram="12" onclick="setVramFilter(12)">12 GB</button>
+            <button class="vram-btn" data-vram="16" onclick="setVramFilter(16)">16 GB</button>
+            <button class="vram-btn" data-vram="24" onclick="setVramFilter(24)">24 GB</button>
+            <button class="vram-btn" data-vram="32" onclick="setVramFilter(32)">32 GB</button>
+            <button class="vram-btn" data-vram="48" onclick="setVramFilter(48)">48 GB+</button>
+          </div>
+        </div>
+
+        <div id="vram-calculator-results" style="display:none;">
+          <h3 id="vram-summary-title" style="color:#0ea5e9;">Models compatible with your GPU</h3>
+
+          <div id="vram-compatible-models" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:12px; margin-bottom:24px;">
+            <!-- Populated by JS -->
+          </div>
+
+          <h3 style="color:#ef4444; margin-top:24px;">Models requiring more VRAM</h3>
+          <div id="vram-incompatible-models" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:12px;">
+            <!-- Populated by JS -->
+          </div>
+
+          <p style="margin-top:16px; font-size:0.85rem; color:#64748b;">
+            &#8505;&#65039; Models marked as requiring more VRAM can still run using CPU offloading, but will be 10-50&#215; slower.
+            For faster inference, consider upgrading to a GPU with more VRAM.
+            <a href="#recommender" style="color:#3b82f6;">Find the right GPU &rarr;</a>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHARTS -->
+    <section class="card fade-in">
+      <h2 class="card-title">Performance Charts</h2>
+      <div style="margin-bottom:16px">
+        <div class="control-group" style="max-width:300px">
+          <label class="control-label">Chart Model</label>
+          <select id="chartModelSelect" class="model-select"></select>
+        </div>
+      </div>
+      <div class="charts-grid">
+        <div class="chart-container">
+          <canvas id="barChart"></canvas>
+        </div>
+        <div class="chart-container">
+          <canvas id="scatterChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- TOKENS/S VISUALIZER -->
+    <section class="card fade-in" id="token-speed-visualizer">
+      <h2 class="card-title">Token Speed Visualizer</h2>
+      <p class="card-subtitle">See how fast different GPUs generate text in real-time. Compare two GPUs side by side.</p>
+
+      <div class="visualizer-controls">
+        <div class="control-group">
+          <label class="control-label">Model</label>
+          <select id="vizModelSelect" class="model-select"></select>
+        </div>
+        <div class="control-group">
+          <label class="control-label">GPU 1</label>
+          <select id="vizGpu1"></select>
+        </div>
+        <div class="control-group" id="vizGpu2Group" style="display:none">
+          <label class="control-label">GPU 2</label>
+          <select id="vizGpu2"></select>
+        </div>
+        <div class="control-group" style="justify-content:flex-end">
+          <label class="control-label">&nbsp;</label>
+          <div style="display:flex;gap:8px">
+            <button class="viz-btn" id="vizStartBtn" onclick="toggleVisualizer()">Start</button>
+            <button class="viz-btn" id="compareBtn" onclick="toggleCompare()">Compare</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="viz-display" id="vizDisplay">
+        <div class="viz-panel" id="vizPanel1">
+          <div class="viz-panel-header">
+            <span class="gpu-label">--</span>
+            <span class="speed-label">--</span>
+          </div>
+          <div class="viz-output" id="vizOutput1"></div>
+        </div>
+        <div class="viz-panel" id="vizPanel2" style="display:none">
+          <div class="viz-panel-header">
+            <span class="gpu-label">--</span>
+            <span class="speed-label">--</span>
+          </div>
+          <div class="viz-output" id="vizOutput2"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- METHODOLOGY -->
+    <section class="card fade-in" id="methodology">
+      <h2 class="card-title">Methodology</h2>
+      <p class="card-subtitle">
+        Benchmarks run via Ollama with fixed prompts and fixed token generation length. Rankings use median tokens/second and include
+        variability metrics; reliability fields use structured run status events when available.
+      </p>
+      <p class="card-subtitle" style="margin-bottom:0">
+        Results are aggregated by GPU model name and may vary by CPU, RAM, motherboard, cooling, driver version, and system load.
+      </p>
+    </section>
+
+  </main>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="footer">
+    <div class="affiliate-disclosure">
+      As an Amazon Associate, I earn from qualifying purchases. GPU prices are approximate and may vary.
+      Data last updated: <strong id="dataDate">--</strong>.
+    </div>
+    <div>
+      <a href="#methodology">Methodology</a>
+      &middot;
+      Benchmarks run on <a href="https://vast.ai" target="_blank" rel="noopener">Vast.ai</a> with <a href="https://ollama.com" target="_blank" rel="noopener">Ollama</a>
+    </div>
+  </footer>
+
+  <!-- ========== SCRIPTS ========== -->
+  <script src="js/affiliate.js?v=2"></script>
+  <script src="js/app.js?v=2"></script>
+
+<!-- GDPR Cookie Consent Banner -->
+<div id="cookie-consent-banner" style="display:none; position:fixed; bottom:0; left:0; right:0; background:#1e293b; color:#e2e8f0; padding:16px 24px; z-index:9999; box-shadow:0 -4px 12px rgba(0,0,0,0.3); align-items:center; gap:16px; flex-wrap:wrap;">
+  <div style="flex:1; min-width:280px;">
+    <strong style="color:#f8fafc;">&#127850; We use cookies</strong>
+    <p style="margin:4px 0 0; font-size:0.875rem; color:#94a3b8;">
+      We use essential cookies and affiliate tracking cookies to support this free resource and recommend hardware.
+      We never sell your data.
+      <a href="#methodology" style="color:#60a5fa;">Learn more</a>
+    </p>
+  </div>
+  <div style="display:flex; gap:8px; flex-shrink:0;">
+    <button onclick="acceptCookies()" style="background:#3b82f6; color:white; border:none; padding:8px 20px; border-radius:6px; cursor:pointer; font-weight:600;">Accept</button>
+    <button onclick="declineCookies()" style="background:transparent; color:#94a3b8; border:1px solid #475569; padding:8px 16px; border-radius:6px; cursor:pointer;">Essential only</button>
+  </div>
+</div>
+
+<script>
+function checkCookieConsent() {
+  const consent = localStorage.getItem('cookie_consent');
+  if (!consent) {
+    document.getElementById('cookie-consent-banner').style.display = 'flex';
+  }
+}
+function acceptCookies() {
+  localStorage.setItem('cookie_consent', 'all');
+  localStorage.setItem('cookie_consent_date', new Date().toISOString());
+  document.getElementById('cookie-consent-banner').style.display = 'none';
+  // Enable analytics/affiliate tracking here if needed
+}
+function declineCookies() {
+  localStorage.setItem('cookie_consent', 'essential');
+  localStorage.setItem('cookie_consent_date', new Date().toISOString());
+  document.getElementById('cookie-consent-banner').style.display = 'none';
+  // Disable non-essential cookies/tracking here if needed
+}
+// Check on load
+document.addEventListener('DOMContentLoaded', checkCookieConsent);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,154 @@
+{
+  "_comment": "Affiliate configuration - REPLACE placeholder tags with real ones before launch",
+  "_instructions": "Register at: Amazon Associates (associates.amazon.com), B&H Photo (bhphotovideo.com/find/AffiliateRegistration.jsp)",
+
+  "affiliate_tags": {
+    "amazon": {
+      "US": "REPLACE_WITH_AMAZON_US_TAG",
+      "UK": "REPLACE_WITH_AMAZON_UK_TAG",
+      "DE": "REPLACE_WITH_AMAZON_DE_TAG",
+      "FR": "REPLACE_WITH_AMAZON_FR_TAG",
+      "CA": "REPLACE_WITH_AMAZON_CA_TAG",
+      "JP": "REPLACE_WITH_AMAZON_JP_TAG"
+    },
+    "bhphoto": {
+      "US": "REPLACE_WITH_BH_TAG"
+    },
+    "vastai_referral": "REPLACE_WITH_VASTAI_REFERRAL_CODE"
+  },
+
+  "gpus": {
+    "RTX 5090": {
+      "amazon_asin": {"US": ""},
+      "bhphoto_sku": "",
+      "search_terms": {"amazon": "RTX 5090 graphics card", "bhphoto": "GeForce RTX 5090"},
+      "priority_store": "amazon"
+    },
+    "RTX 5080": {
+      "amazon_asin": {"US": ""},
+      "bhphoto_sku": "",
+      "search_terms": {"amazon": "RTX 5080 graphics card", "bhphoto": "GeForce RTX 5080"},
+      "priority_store": "amazon"
+    },
+    "RTX 5070 Ti": {
+      "amazon_asin": {"US": ""},
+      "bhphoto_sku": "",
+      "search_terms": {"amazon": "RTX 5070 Ti graphics card", "bhphoto": "GeForce RTX 5070 Ti"},
+      "priority_store": "amazon"
+    },
+    "RTX 5070": {
+      "amazon_asin": {"US": ""},
+      "bhphoto_sku": "",
+      "search_terms": {"amazon": "RTX 5070 graphics card", "bhphoto": "GeForce RTX 5070"},
+      "priority_store": "amazon"
+    },
+    "RTX 4090": {
+      "amazon_asin": {"US": "B0BG95Z4PZ"},
+      "bhphoto_sku": "",
+      "search_terms": {"amazon": "RTX 4090 graphics card", "bhphoto": "GeForce RTX 4090"},
+      "priority_store": "amazon"
+    },
+    "RTX 4080 Super": {
+      "amazon_asin": {"US": ""},
+      "bhphoto_sku": "",
+      "search_terms": {"amazon": "RTX 4080 Super graphics card", "bhphoto": "GeForce RTX 4080 Super"},
+      "priority_store": "amazon"
+    },
+    "RTX 4080": {
+      "amazon_asin": {"US": ""},
+      "bhphoto_sku": "",
+      "search_terms": {"amazon": "RTX 4080 graphics card", "bhphoto": "GeForce RTX 4080"},
+      "priority_store": "amazon"
+    },
+    "RTX 4070 Ti Super": {
+      "amazon_asin": {"US": ""},
+      "bhphoto_sku": "",
+      "search_terms": {"amazon": "RTX 4070 Ti Super", "bhphoto": "GeForce RTX 4070 Ti Super"},
+      "priority_store": "amazon"
+    },
+    "RTX 4070 Ti": {
+      "amazon_asin": {"US": ""},
+      "bhphoto_sku": "",
+      "search_terms": {"amazon": "RTX 4070 Ti graphics card", "bhphoto": "GeForce RTX 4070 Ti"},
+      "priority_store": "amazon"
+    },
+    "RTX 4070 Super": {
+      "amazon_asin": {"US": ""},
+      "bhphoto_sku": "",
+      "search_terms": {"amazon": "RTX 4070 Super graphics card", "bhphoto": "GeForce RTX 4070 Super"},
+      "priority_store": "amazon"
+    },
+    "RTX 4070": {
+      "amazon_asin": {"US": ""},
+      "bhphoto_sku": "",
+      "search_terms": {"amazon": "RTX 4070 graphics card", "bhphoto": "GeForce RTX 4070"},
+      "priority_store": "amazon"
+    },
+    "RTX 4060 Ti 16GB": {
+      "amazon_asin": {"US": ""},
+      "bhphoto_sku": "",
+      "search_terms": {"amazon": "RTX 4060 Ti 16GB", "bhphoto": "GeForce RTX 4060 Ti 16GB"},
+      "priority_store": "amazon"
+    },
+    "RTX 4060 Ti": {
+      "amazon_asin": {"US": ""},
+      "bhphoto_sku": "",
+      "search_terms": {"amazon": "RTX 4060 Ti 8GB", "bhphoto": "GeForce RTX 4060 Ti"},
+      "priority_store": "amazon"
+    },
+    "RTX 4060": {
+      "amazon_asin": {"US": ""},
+      "bhphoto_sku": "",
+      "search_terms": {"amazon": "RTX 4060 graphics card", "bhphoto": "GeForce RTX 4060"},
+      "priority_store": "amazon"
+    },
+    "RTX 3090": {
+      "amazon_asin": {"US": ""},
+      "bhphoto_sku": "",
+      "search_terms": {"amazon": "RTX 3090 used graphics card", "bhphoto": "GeForce RTX 3090"},
+      "priority_store": "bhphoto"
+    },
+    "RTX 3080": {
+      "amazon_asin": {"US": ""},
+      "bhphoto_sku": "",
+      "search_terms": {"amazon": "RTX 3080 used graphics card", "bhphoto": "GeForce RTX 3080"},
+      "priority_store": "bhphoto"
+    },
+    "RTX 3070": {
+      "amazon_asin": {"US": ""},
+      "bhphoto_sku": "",
+      "search_terms": {"amazon": "RTX 3070 used graphics card", "bhphoto": "GeForce RTX 3070"},
+      "priority_store": "bhphoto"
+    },
+    "RTX 3060": {
+      "amazon_asin": {"US": ""},
+      "bhphoto_sku": "",
+      "search_terms": {"amazon": "RTX 3060 graphics card", "bhphoto": "GeForce RTX 3060"},
+      "priority_store": "amazon"
+    },
+    "RX 9070 XT": {
+      "amazon_asin": {"US": ""},
+      "bhphoto_sku": "",
+      "search_terms": {"amazon": "RX 9070 XT graphics card", "bhphoto": "Radeon RX 9070 XT"},
+      "priority_store": "amazon"
+    },
+    "RX 7900 XTX": {
+      "amazon_asin": {"US": ""},
+      "bhphoto_sku": "",
+      "search_terms": {"amazon": "RX 7900 XTX graphics card", "bhphoto": "Radeon RX 7900 XTX"},
+      "priority_store": "bhphoto"
+    },
+    "RX 7900 XT": {
+      "amazon_asin": {"US": ""},
+      "bhphoto_sku": "",
+      "search_terms": {"amazon": "RX 7900 XT graphics card", "bhphoto": "Radeon RX 7900 XT"},
+      "priority_store": "bhphoto"
+    },
+    "Arc B580": {
+      "amazon_asin": {"US": ""},
+      "bhphoto_sku": "",
+      "search_terms": {"amazon": "Intel Arc B580 graphics card", "bhphoto": "Intel Arc B580"},
+      "priority_store": "amazon"
+    }
+  }
+}

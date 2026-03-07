@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="page-title">RTX 3060 Ollama Benchmark — Tokens Per Second | LLM Speed Test</title>
+  <meta name="description" id="page-description" content="RTX 4090 LLM inference speed benchmarks. Real tokens/second measurements running Ollama on an RTX 4090. Includes llama3.1:8b, mistral:7b, and more.">
+  <link rel="canonical" id="page-canonical" href="https://yoursite.com/gpu/rtx-4090">
+  <!-- Include same CSS as main site -->
+  <link rel="stylesheet" href="../css/styles.css">
+
+  <!-- Structured data for SEO -->
+  <script type="application/ld+json" id="structured-data">
+  {
+    "@context": "https://schema.org",
+    "@type": "Dataset",
+    "name": "RTX 4090 LLM Inference Benchmarks",
+    "description": "Tokens per second measurements for running open-source LLMs on an NVIDIA RTX 4090 using Ollama",
+    "keywords": ["RTX 4090", "LLM benchmark", "tokens per second", "Ollama", "local LLM"],
+    "creator": {"@type": "Organization", "name": "YourSiteName"},
+    "dateModified": "2026-03-05"
+  }
+  </script>
+</head>
+<body>
+  <!-- Navigation back to main site -->
+  <nav style="background:#1e293b; padding:12px 24px;">
+    <a href="/" style="color:#60a5fa; text-decoration:none;">&larr; All GPU Benchmarks</a>
+    <span style="color:#475569; margin:0 12px;">|</span>
+    <span id="nav-gpu-name" style="color:#e2e8f0;">RTX 4090</span>
+  </nav>
+
+  <!-- Hero Section -->
+  <header style="padding:40px 24px; max-width:900px; margin:0 auto;">
+    <h1 id="hero-title">RTX 3060 &mdash; LLM Inference Speed</h1>
+    <p id="hero-subtitle" style="font-size:1.1rem; color:#64748b;">
+      Real-world tokens/second benchmarks running open-source models via Ollama on an RTX 4090 (24GB GDDR6X).
+    </p>
+    <div id="hero-stats" style="display:flex; gap:24px; margin-top:20px; flex-wrap:wrap;">
+      <!-- Populated by JS: Best tok/s, VRAM, tested models count -->
+    </div>
+  </header>
+
+  <!-- Benchmark Results Table for This GPU -->
+  <main style="max-width:900px; margin:0 auto; padding:0 24px 40px;">
+    <h2>Benchmark Results</h2>
+    <p class="affiliate-disclosure-inline">
+      <small>&#9888;&#65039; <strong>Disclosure:</strong> Purchase links below are affiliate links. <a href="/">Learn more.</a></small>
+    </p>
+
+    <!-- Buy Button -->
+    <div id="buy-section" style="margin:16px 0; padding:16px; background:#f0f9ff; border-radius:8px; border:1px solid #bae6fd;">
+      <strong id="buy-gpu-name">RTX 4090</strong> &mdash;
+      <span id="buy-price">$1,799 new</span>
+      <span style="margin:0 8px; color:#94a3b8;">|</span>
+      <a id="buy-link-amazon" href="#" target="_blank" rel="noopener noreferrer sponsored" style="color:#f59e0b;">Buy on Amazon &rarr;</a>
+      <span style="margin:0 8px; color:#94a3b8;">|</span>
+      <a id="buy-link-bhphoto" href="#" target="_blank" rel="noopener noreferrer sponsored" style="color:#3b82f6;">Buy at B&amp;H Photo &rarr;</a>
+    </div>
+
+    <table id="gpu-results-table" style="width:100%; border-collapse:collapse;">
+      <thead>
+        <tr>
+          <th>Model</th>
+          <th>Tokens/sec</th>
+          <th>Confidence</th>
+          <th>Context Used</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody id="gpu-results-tbody">
+        <!-- Populated by JavaScript -->
+      </tbody>
+    </table>
+
+    <!-- Configuration Details -->
+    <section style="margin-top:32px;">
+      <h2>Test Configuration</h2>
+      <ul id="test-config-list">
+        <li>Benchmark tool: Ollama (version specified per run)</li>
+        <li>Measurement: <code>eval_count / eval_duration</code> (native Ollama API)</li>
+        <li>Warm-up: 500 tokens before measurement</li>
+        <li>Flash Attention: Enabled (<code>OLLAMA_FLASH_ATTENTION=1</code>)</li>
+        <li>Context window: 2048 tokens (Ollama default)</li>
+        <li id="test-gpu-vram">GPU VRAM: 24GB</li>
+      </ul>
+    </section>
+
+    <!-- Related GPUs -->
+    <section style="margin-top:32px;">
+      <h2>Compare with Similar GPUs</h2>
+      <div id="related-gpus" style="display:flex; gap:12px; flex-wrap:wrap;">
+        <!-- Populated by JS based on VRAM tier -->
+      </div>
+    </section>
+  </main>
+
+  <script src="../js/app.js"></script>
+  <script>
+  // GPU page initialization
+  const GPU_PAGE_CONFIG = {
+    gpuName: "RTX 3060",
+    // Override with actual GPU from URL or data attribute
+  };
+
+  // Parse GPU name from URL: /gpu/rtx-4090 → "RTX 4090"
+  function getGpuFromUrl() {
+    const path = window.location.pathname;
+    const match = path.match(/\/gpu\/(.+)/);
+    if (match) {
+      return match[1].replace(/-/g, ' ').toUpperCase().replace('RTX ', 'RTX ').replace('RX ', 'RX ');
+    }
+    return null;
+  }
+
+  // Initialize the GPU page with data from benchmark_data.json
+  async function initGpuPage() {
+    const response = await fetch('../data/benchmark_data.json');
+    const data = await response.json();
+    const priceResponse = await fetch('../data/gpu_prices.json');
+    const prices = await priceResponse.json();
+
+    const gpuName = getGpuFromUrl() || GPU_PAGE_CONFIG.gpuName;
+
+    // Update page metadata
+    document.getElementById('page-title').textContent = `${gpuName} Ollama Benchmark — Tokens Per Second | LLM Speed Test`;
+    document.getElementById('hero-title').textContent = `${gpuName} — LLM Inference Speed`;
+    document.getElementById('nav-gpu-name').textContent = gpuName;
+    document.getElementById('buy-gpu-name').textContent = gpuName;
+
+    // Find this GPU's data
+    const gpuData = data.gpus?.[gpuName] || {};
+    const gpuModels = Object.entries(gpuData);
+
+    // Populate results table
+    const tbody = document.getElementById('gpu-results-tbody');
+    tbody.innerHTML = '';
+    gpuModels.sort((a, b) => (b[1].median_tokens_per_sec || b[1].avg_tokens_per_sec || 0) - (a[1].median_tokens_per_sec || a[1].avg_tokens_per_sec || 0));
+
+    gpuModels.forEach(([model, result]) => {
+      const tps = result.median_tokens_per_sec || result.avg_tokens_per_sec || '—';
+      const n = result.sample_count || result.n || 1;
+      const isOverflow = tps < 5;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${model}</td>
+        <td style="${isOverflow ? 'color:#dc2626' : ''}">${typeof tps === 'number' ? tps.toFixed(1) : tps} tok/s ${isOverflow ? '&#9888;&#65039;' : ''}</td>
+        <td><span class="badge ${n >= 3 ? 'badge-verified' : n === 1 ? 'badge-preliminary' : 'badge-low'}">n=${n}</span></td>
+        <td>2048 tokens</td>
+        <td>${isOverflow ? 'VRAM overflow — CPU offloading' : ''}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    // Update buy links (placeholder — will be updated by affiliate.js)
+    document.getElementById('buy-link-amazon').href = `https://www.amazon.com/s?k=${encodeURIComponent(gpuName + ' graphics card')}&tag=REPLACE_TAG`;
+    document.getElementById('buy-link-bhphoto').href = `https://www.bhphotovideo.com/c/search?Ntt=${encodeURIComponent(gpuName)}`;
+  }
+
+  document.addEventListener('DOMContentLoaded', initGpuPage);
+  </script>
+</body>
+</html>
