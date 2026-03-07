@@ -143,9 +143,12 @@ async function init() {
       fetch('data/benchmark_data.json'),
       fetch('data/gpu_prices.json'),
     ]);
+    if (!benchResp.ok) throw new Error(`benchmark_data.json: HTTP ${benchResp.status}`);
+    if (!priceResp.ok) throw new Error(`gpu_prices.json: HTTP ${priceResp.status}`);
     benchmarkData = await benchResp.json();
     gpuPrices = await priceResp.json();
-    await loadAffiliateConfig();
+
+    try { await loadAffiliateConfig(); } catch (e) { console.warn('Affiliate config failed:', e); }
 
     // Seed active columns: use DEFAULT_MODELS that exist, else first 5
     const availableModels = benchmarkData.models.map(m => m.name);
@@ -158,13 +161,13 @@ async function init() {
     populateVisualizerSelects();
     renderRecommendations();
     renderTable();
-    renderCharts();
+    try { renderCharts(); } catch (e) { console.warn('Charts failed (Chart.js may not be loaded):', e); }
     setupScrollAnimations();
     updateMetadata();
   } catch (err) {
     console.error('Failed to load data:', err);
     document.querySelector('.main').innerHTML =
-      '<div class="card"><p class="no-results">Failed to load benchmark data. Make sure data files are present in the data/ directory.</p></div>';
+      '<div class="card"><p class="no-results">Failed to load benchmark data: ' + err.message + '</p></div>';
   }
 }
 

@@ -5,6 +5,7 @@ let currentRegion = 'US';
 
 async function loadAffiliateConfig() {
   const resp = await fetch('data/gpu_asins.json');
+  if (!resp.ok) throw new Error(`gpu_asins.json: HTTP ${resp.status}`);
   affiliateConfig = await resp.json();
   detectRegion();
 }
