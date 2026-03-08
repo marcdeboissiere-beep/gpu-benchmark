@@ -1,398 +1,365 @@
-// ========== GPU INFERENCE BENCHMARK - MAIN APP ==========
-
+// ── STATE ──
 let benchmarkData = null;
 let gpuPrices = null;
-let currentModel = null;
 let sortColumn = null;
 let sortDirection = 'desc';
-let condition = 'used'; // 'new' or 'used'
+let condition = 'used';
+let activeModelColumns = new Set();
+let activeGpuRows     = new Set();
 
-// Visualizer state
-let vizRunning = false;
-let vizAnimationIds = [];
-let vizCompareMode = false;
+// Speed simulation state
+let simEnabled   = true;
+let simTimerId   = null;
+let simCharIndex = 0;
+let simPausing   = false;
 
-// ========== POWER EFFICIENCY DATA ==========
-// GPU TDP reference values (max power draw in watts)
-const GPU_TDP_WATTS = {
-  'RTX 5090': 575, 'RTX 5080': 360, 'RTX 5070 Ti': 300, 'RTX 5070': 250,
-  'RTX 4090': 450, 'RTX 4080 Super': 320, 'RTX 4080': 320,
-  'RTX 4070 Ti Super': 285, 'RTX 4070 Ti': 285, 'RTX 4070 Super': 220, 'RTX 4070': 200,
-  'RTX 4060 Ti 16GB': 165, 'RTX 4060 Ti': 160, 'RTX 4060': 115,
-  'RTX 3090': 350, 'RTX 3080 Ti': 350, 'RTX 3080': 320, 'RTX 3070': 220, 'RTX 3060': 170,
-  'RX 9070 XT': 304, 'RX 7900 XTX': 355, 'RX 7900 XT': 300,
-  'Arc B580': 190
+// ── CONSTANTS ──
+const DEFAULT_MODEL_COLUMNS = ['llama3.1:8b', 'deepseek-r1:14b', 'mistral-small:24b', 'llama3.3:70b'];
+
+const SPEED_CONTEXT_LABELS = [
+  [1,   9,   "Barely usable — slower than reading pace"],
+  [10,  19,  "Slow chat — fine for casual use"],
+  [20,  39,  "Comfortable chat speed"],
+  [40,  79,  "Fast — good for rapid iteration"],
+  [80,  149, "Very fast — developer workflow speed"],
+  [150, Infinity, "Exceptional — near-instant for most queries"],
+];
+
+const MODEL_VRAM_GB = {
+  'llama3.2:3b':       2.5,
+  'llama3.1:8b':       5.5,
+  'deepseek-r1:7b':    5.5,
+  'qwen2.5:7b':        5.0,
+  'gemma3:4b':         3.5,
+  'qwen3.5:4b':        3.5,
+  'qwen3.5:9b':        6.5,
+  'mistral-nemo:12b':  8.5,
+  'deepseek-r1:14b':   10.0,
+  'phi4-reasoning:14b': 10.0,
+  'qwen2.5:32b':       22.0,
+  'deepseek-r1:32b':   22.0,
+  'qwen3.5:27b':       18.0,
+  'mistral-small:24b': 16.0,
+  'llama3.3:70b':      45.0,
+  'llama-2-7b-Q4_0':   5.0,
 };
 
-function getGpuTdp(gpuName) {
-  if (GPU_TDP_WATTS[gpuName]) return GPU_TDP_WATTS[gpuName];
-  for (const [key, val] of Object.entries(GPU_TDP_WATTS)) {
-    if (gpuName.includes(key) || key.includes(gpuName)) return val;
-  }
-  return null;
-}
-
-function getEfficiencyScore(gpuName, toksPerSec) {
-  // No measured gpu_power_avg_w in current benchmark data — use TDP reference
-  const tdp = getGpuTdp(gpuName);
-  if (!tdp || !toksPerSec || toksPerSec < 5) return null;
-  return (toksPerSec / tdp).toFixed(3);
-}
-
-// ========== CPU OFFLOAD HELPERS ==========
-function getOffloadNote(vramGb, modelVramRequired) {
-  if (modelVramRequired <= vramGb) return null;
-  const gpuPct = Math.round((vramGb / modelVramRequired) * 100);
-  return `~${gpuPct}% on GPU, rest on CPU RAM. Speed mainly limited by RAM bandwidth.`;
-}
-
-// ========== VRAM CALCULATOR DATA ==========
-// VRAM requirements for models (in GB, for Q4_K_M quantization, comfortable inference)
-const MODEL_VRAM_REQUIREMENTS = {
-  'llama3.2:1b':       { vram: 1.5,  size: '1B',  quant: 'Q4_K_M' },
-  'llama3.2:3b':       { vram: 2.5,  size: '3B',  quant: 'Q4_K_M' },
-  'llama3.1:8b':       { vram: 5.5,  size: '8B',  quant: 'Q4_K_M' },
-  'mistral:7b':        { vram: 5.0,  size: '7B',  quant: 'Q4_K_M' },
-  'gemma2:9b':         { vram: 6.5,  size: '9B',  quant: 'Q4_K_M' },
-  'qwen2.5:7b':        { vram: 5.0,  size: '7B',  quant: 'Q4_K_M' },
-  'qwen2.5:14b':       { vram: 10.0, size: '14B', quant: 'Q4_K_M' },
-  'deepseek-r1:7b':    { vram: 5.5,  size: '7B',  quant: 'Q4_K_M' },
-  'deepseek-r1:14b':   { vram: 10.0, size: '14B', quant: 'Q4_K_M' },
-  'mistral-small:24b': { vram: 16.0, size: '24B', quant: 'Q4_K_M' },
-  'qwen2.5:32b':       { vram: 22.0, size: '32B', quant: 'Q4_K_M' },
-  'deepseek-r1:32b':   { vram: 22.0, size: '32B', quant: 'Q4_K_M' },
-  'llama3.3:70b':      { vram: 45.0, size: '70B', quant: 'Q4_K_M' },
-  'qwen2.5:72b':       { vram: 47.0, size: '72B', quant: 'Q4_K_M' }
+const MODEL_SHORTNAMES = {
+  'deepseek-r1:7b':     'ds-r1:7b',
+  'deepseek-r1:14b':    'ds-r1:14b',
+  'deepseek-r1:32b':    'ds-r1:32b',
+  'llama3.1:8b':        'llama3:8b',
+  'llama3.2:3b':        'llama3:3b',
+  'llama3.3:70b':       'llama3:70b',
+  'mistral-small:24b':  'mistral:24b',
+  'mistral-nemo:12b':   'nemo:12b',
+  'qwen2.5:7b':         'qwen2:7b',
+  'qwen2.5:32b':        'qwen2:32b',
+  'qwen3.5:4b':         'qwen3:4b',
+  'qwen3.5:9b':         'qwen3:9b',
+  'qwen3.5:27b':        'qwen3:27b',
+  'gemma3:4b':          'gemma3:4b',
+  'phi4-reasoning:14b': 'phi4:14b',
+  'llama-2-7b-Q4_0':   'llama2:7b',
 };
 
-let selectedVram = null;
-
-function setVramFilter(vramGb) {
-  selectedVram = vramGb;
-
-  // Update button states
-  document.querySelectorAll('.vram-btn').forEach(btn => {
-    btn.classList.toggle('selected', parseInt(btn.dataset.vram) === vramGb);
-  });
-
-  // Show results section
-  const resultsDiv = document.getElementById('vram-calculator-results');
-  resultsDiv.style.display = 'block';
-
-  document.getElementById('vram-summary-title').textContent =
-    `Models that fit in ${vramGb}GB VRAM (run at full GPU speed)`;
-
-  const compatibleDiv = document.getElementById('vram-compatible-models');
-  const incompatibleDiv = document.getElementById('vram-incompatible-models');
-
-  compatibleDiv.innerHTML = '';
-  incompatibleDiv.innerHTML = '';
-
-  // Build a map of best median tok/s per model from benchmark data
-  const modelSpeeds = {};
-  if (benchmarkData && benchmarkData.gpus) {
-    for (const gpu of benchmarkData.gpus) {
-      for (const [modelName, bench] of Object.entries(gpu.benchmarks || {})) {
-        const spd = getBenchmarkSpeed(bench);
-        if (spd !== null && (modelSpeeds[modelName] === undefined || spd > modelSpeeds[modelName])) {
-          modelSpeeds[modelName] = spd;
-        }
-      }
-    }
-  }
-
-  Object.entries(MODEL_VRAM_REQUIREMENTS)
-    .sort((a, b) => a[1].vram - b[1].vram)
-    .forEach(([modelName, req]) => {
-      const fits = req.vram <= vramGb;
-      const card = document.createElement('div');
-      card.className = `model-card ${fits ? 'compatible' : 'incompatible'}`;
-
-      const spd = modelSpeeds[modelName];
-      const speedText = spd
-        ? `<div class="model-speed">~${spd.toFixed(0)} tok/s</div>`
-        : '';
-
-      const offloadNote = fits ? null : getOffloadNote(vramGb, req.vram);
-      card.innerHTML = `
-        <div class="model-name">${modelName}</div>
-        <div class="model-vram-needed">Needs ~${req.vram}GB VRAM</div>
-        ${speedText}
-        ${fits
-          ? '<div style="color:#16a34a; font-size:0.75rem; margin-top:4px;">&#10003; Fits in VRAM</div>'
-          : `<div style="color:#ef4444; font-size:0.75rem; margin-top:4px;">&#10007; Needs more VRAM</div>
-             <div style="color:#d97706; font-size:0.75rem; margin-top:4px;">
-               &#9889; Can run with CPU offloading
-               <span class="badge badge-offload">Slower</span>
-             </div>
-             ${offloadNote ? `<div style="color:#94a3b8; font-size:0.7rem;">${offloadNote}</div>` : ''}
-             <div style="color:#94a3b8; font-size:0.7rem;">Speed depends on RAM bandwidth &amp; PCIe</div>`}
-      `;
-
-      (fits ? compatibleDiv : incompatibleDiv).appendChild(card);
-    });
-
-  // Smooth scroll to results
-  resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
-
-// ========== DATA LOADING ==========
+// ── INIT ──
 async function init() {
   try {
     const [benchResp, priceResp] = await Promise.all([
       fetch('data/benchmark_data.json'),
       fetch('data/gpu_prices.json'),
     ]);
-    if (!benchResp.ok) throw new Error(`benchmark_data.json: HTTP ${benchResp.status}`);
-    if (!priceResp.ok) throw new Error(`gpu_prices.json: HTTP ${priceResp.status}`);
+    if (!benchResp.ok) throw new Error('benchmark_data.json: HTTP ' + benchResp.status);
+    if (!priceResp.ok) throw new Error('gpu_prices.json: HTTP ' + priceResp.status);
     benchmarkData = await benchResp.json();
     gpuPrices = await priceResp.json();
 
     try { await loadAffiliateConfig(); } catch (e) { console.warn('Affiliate config failed:', e); }
 
-    // Seed active columns: use DEFAULT_MODELS that exist, else first 5
-    const availableModels = benchmarkData.models.map(m => m.name);
-    const matching = DEFAULT_MODELS.filter(m => availableModels.includes(m));
+    // Seed activeModelColumns: DEFAULT_MODEL_COLUMNS that exist in data, else first 4
+    const availableModels = (benchmarkData.models || []).map(m => m.name);
+    const matching = DEFAULT_MODEL_COLUMNS.filter(m => availableModels.includes(m));
     activeModelColumns = matching.length > 0
       ? new Set(matching)
-      : new Set(availableModels.slice(0, 5));
+      : new Set(availableModels.slice(0, 4));
 
-    populateModelSelect();
-    populateVisualizerSelects();
+    // Seed activeGpuRows: all GPUs visible by default
+    activeGpuRows = new Set((benchmarkData.gpus || []).map(g => g.name));
+
+    populateRecommenderModelSelect();
+    updateSpeedContext(20);
     renderRecommendations();
     renderTable();
-    try { renderCharts(); } catch (e) { console.warn('Charts failed (Chart.js may not be loaded):', e); }
-    setupScrollAnimations();
-    updateMetadata();
+    populateBreakevenGpuSelect();
+    renderBreakeven();
+    updateFooterStats();
+    bindEvents();
+    simStart();
+
   } catch (err) {
     console.error('Failed to load data:', err);
-    document.querySelector('.main').innerHTML =
-      '<div class="card"><p class="no-results">Failed to load benchmark data: ' + err.message + '</p></div>';
+    const tbody = document.getElementById('table-body');
+    if (tbody) {
+      tbody.innerHTML = '<tr><td colspan="20" class="cell-loading">Failed to load benchmark data: ' + err.message + '</td></tr>';
+    }
+    const recLoading = document.getElementById('rec-loading');
+    if (recLoading) recLoading.textContent = 'Failed to load data.';
   }
 }
 
-function updateMetadata() {
-  const el = document.getElementById('dataDate');
-  if (el && benchmarkData?.metadata?.generated_at) {
-    const d = new Date(benchmarkData.metadata.generated_at);
-    el.textContent = d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+// ── DATA HELPERS ──
+
+function getBenchmarkSpeed(cell) {
+  if (!cell) return null;
+  if (typeof cell.median_tokens_per_sec === 'number' && isFinite(cell.median_tokens_per_sec)) {
+    return cell.median_tokens_per_sec;
   }
-  const gpuCount = document.getElementById('gpuCount');
-  const modelCount = document.getElementById('modelCount');
-  if (gpuCount) gpuCount.textContent = benchmarkData?.gpus?.length || 0;
-  if (modelCount) modelCount.textContent = benchmarkData?.models?.length || 0;
+  return null;
 }
 
-// ========== MODEL SELECT ==========
-function populateModelSelect() {
-  const selects = document.querySelectorAll('.model-select');
-  if (!benchmarkData?.models) return;
+function getGpuPriceEntry(gpuName) {
+  if (!gpuPrices || !gpuPrices.gpus) return null;
+  // Exact match first
+  if (gpuPrices.gpus[gpuName] !== undefined) return gpuPrices.gpus[gpuName];
+  // Substring fallback
+  for (const [key, val] of Object.entries(gpuPrices.gpus)) {
+    if (gpuName.includes(key) || key.includes(gpuName)) return val;
+  }
+  return null;
+}
 
-  selects.forEach(sel => {
-    sel.innerHTML = '';
-    benchmarkData.models
-      .sort((a, b) => {
-        const pa = parseFloat(a.params) || 0;
-        const pb = parseFloat(b.params) || 0;
-        return pa - pb;
-      })
-      .forEach(m => {
-        const opt = document.createElement('option');
-        opt.value = m.name;
-        opt.textContent = `${m.name} (${m.params})`;
-        sel.appendChild(opt);
-      });
-    // Default to a mid-size model if available
-    const mid = benchmarkData.models.find(m => m.name.includes('7b') || m.name.includes('8b'));
-    if (mid) sel.value = mid.name;
+function getUsedPrice(gpuName) {
+  const entry = getGpuPriceEntry(gpuName);
+  if (!entry) return null;
+  return entry.used_usd > 0 ? entry.used_usd : null;
+}
+
+function getRetailPrice(gpuName) {
+  const entry = getGpuPriceEntry(gpuName);
+  if (!entry) return null;
+  return entry.retail_usd > 0 ? entry.retail_usd : null;
+}
+
+function getPlatformCost(gpuName) {
+  const entry = getGpuPriceEntry(gpuName);
+  if (!entry || entry.platform_build_usd == null) return null;
+  return entry.platform_build_usd;
+}
+
+function getActivePrice(gpuName) {
+  if (condition === 'new') return getRetailPrice(gpuName);
+  if (condition === 'build') {
+    const usedPrice    = getUsedPrice(gpuName);
+    const platformCost = getPlatformCost(gpuName);
+    if (usedPrice === null || platformCost === null) return null;
+    return usedPrice + platformCost;
+  }
+  return getUsedPrice(gpuName);
+}
+
+function getVramGb(gpuName) {
+  const entry = getGpuPriceEntry(gpuName);
+  if (entry && entry.vram_gb) return entry.vram_gb;
+  // Fallback: check benchmarkData.gpus
+  if (benchmarkData && benchmarkData.gpus) {
+    const row = benchmarkData.gpus.find(g => g.name === gpuName);
+    if (row && row.vram_gb) return row.vram_gb;
+  }
+  return null;
+}
+
+// ── RECOMMENDER ──
+
+function populateRecommenderModelSelect() {
+  const sel = document.getElementById('rec-model-select');
+  if (!sel || !benchmarkData || !benchmarkData.models) return;
+
+  // Sort by MODEL_VRAM_GB then by name
+  const models = [...benchmarkData.models].sort((a, b) => {
+    const va = MODEL_VRAM_GB[a.name] || 999;
+    const vb = MODEL_VRAM_GB[b.name] || 999;
+    if (va !== vb) return va - vb;
+    return a.name.localeCompare(b.name);
   });
 
-  currentModel = document.getElementById('modelSelect')?.value;
+  sel.innerHTML = '';
+  models.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m.name;
+    opt.textContent = m.name;
+    sel.appendChild(opt);
+  });
+
+  // Default to first 8b/7b match
+  const preferred = models.find(m => /8b|7b/i.test(m.name));
+  if (preferred) sel.value = preferred.name;
+
+  updateModelHint();
 }
 
-// ========== GPU PRICE HELPERS ==========
-function getGpuPrice(gpuName) {
-  if (!gpuPrices?.gpus) return null;
+function updateModelHint() {
+  const sel = document.getElementById('rec-model-select');
+  const hint = document.getElementById('rec-model-hint');
+  if (!sel || !hint) return;
+  const vram = MODEL_VRAM_GB[sel.value];
+  hint.textContent = vram !== undefined ? 'Needs ~' + vram + ' GB VRAM' : '';
+}
 
-  // Try exact match first
-  if (gpuPrices.gpus[gpuName]) {
-    return gpuPrices.gpus[gpuName];
-  }
-
-  // Try fuzzy match (e.g., "RTX 3080" matches "RTX 3080")
-  for (const [key, val] of Object.entries(gpuPrices.gpus)) {
-    if (gpuName.includes(key) || key.includes(gpuName)) {
-      return val;
+function updateSpeedContext(value) {
+  const el = document.getElementById('rec-speed-context');
+  if (!el) return;
+  const v = Number(value);
+  for (const [lo, hi, label] of SPEED_CONTEXT_LABELS) {
+    if (v >= lo && v <= hi) {
+      el.textContent = label;
+      return;
     }
   }
-  return null;
+  el.textContent = '';
 }
 
-function getPrice(gpuName) {
-  const info = getGpuPrice(gpuName);
-  if (!info) return null;
-  const p = condition === 'new' ? info.retail_usd : info.used_usd;
-  return p > 0 ? p : null;
-}
-
-function getVram(gpuName) {
-  const info = getGpuPrice(gpuName);
-  return info?.vram_gb || null;
-}
-
-function getBenchmarkSpeed(bench) {
-  if (!bench) return null;
-  if (typeof bench.median_tokens_per_sec === 'number') return bench.median_tokens_per_sec;
-  return null;
-}
-
-// ========== RECOMMENDER ==========
 function renderRecommendations() {
-  const container = document.getElementById('recommendations');
-  if (!container || !benchmarkData || !gpuPrices) return;
+  if (!benchmarkData || !gpuPrices) return;
 
-  const model = document.getElementById('modelSelect')?.value;
-  const desiredSpeed = parseFloat(document.getElementById('speedRange')?.value) || 0;
-  const budget = parseFloat(document.getElementById('budgetRange')?.value) || 99999;
+  const recLoading = document.getElementById('rec-loading');
+  const recEmpty   = document.getElementById('rec-empty');
+  const recCards   = document.getElementById('rec-cards');
+  if (!recCards) return;
+
+  if (recLoading) recLoading.hidden = true;
+
+  const modelSel = document.getElementById('rec-model-select');
+  const model    = modelSel ? modelSel.value : null;
+  const speedEl  = document.getElementById('rec-speed-range');
+  const budgetEl = document.getElementById('rec-budget-range');
+  const desiredSpeed = speedEl ? parseFloat(speedEl.value) || 0 : 0;
+  const budget       = budgetEl ? parseFloat(budgetEl.value) || Infinity : Infinity;
 
   if (!model) {
-    container.innerHTML = '<p class="no-results">Select a model to get recommendations</p>';
+    recEmpty.hidden = false;
+    recCards.hidden = true;
     return;
   }
 
-  // Find GPUs that meet criteria
-  const reliableCandidates = [];
-  const fallbackCandidates = [];
+  const candidates = [];
   for (const gpu of benchmarkData.gpus) {
     const bench = gpu.benchmarks[model];
-    if (!bench || bench.inference_type === 'cpu_offload') continue;
+    if (!bench) continue;
+    if (bench.inference_type === 'cpu_offload') continue;
     const speed = getBenchmarkSpeed(bench);
-    if (speed == null) continue;
+    if (speed === null) continue;
     if (speed < desiredSpeed) continue;
-    const price = getPrice(gpu.name);
-    if (!price || price > budget) continue;
+    const price = getActivePrice(gpu.name);
+    if (price === null || price > budget) continue;
 
-    const candidate = {
-      name: gpu.name,
-      speed: speed,
-      price: price,
-      vram: getVram(gpu.name),
-      value: speed / price, // tok/s per dollar
-      samples: bench.samples,
-      noisy: !!bench.noisy,
-      successRate: typeof bench.success_rate_pct === 'number' ? bench.success_rate_pct : null,
-    };
-
-    const hasEnoughSamples = (bench.samples || 0) >= 2;
-    if (!bench.noisy && hasEnoughSamples) {
-      reliableCandidates.push(candidate);
-    } else {
-      fallbackCandidates.push(candidate);
-    }
+    candidates.push({
+      name:     gpu.name,
+      speed:    speed,
+      price:    price,
+      vram:     getVramGb(gpu.name),
+      value:    speed / price,
+      samples:  bench.samples,
+      inferenceType: bench.inference_type || 'gpu_full',
+    });
   }
 
-  const candidates = reliableCandidates.length ? reliableCandidates : fallbackCandidates;
-
-  // Sort by value (best first)
+  // Sort by value descending (tok/s per dollar)
   candidates.sort((a, b) => b.value - a.value);
 
   if (candidates.length === 0) {
-    container.innerHTML = '<p class="no-results">No GPU matches your criteria. Try adjusting the budget or speed requirement.</p>';
+    if (recEmpty) recEmpty.hidden = false;
+    recCards.hidden = true;
     return;
   }
 
-  // Show top 3
+  if (recEmpty) recEmpty.hidden = true;
+  recCards.hidden = false;
+
   const top = candidates.slice(0, 3);
-  const lowConfidenceBanner = reliableCandidates.length
-    ? ''
-    : '<p class="no-results" style="padding:0 0 12px 0;text-align:left">Only low-confidence datapoints are available for this filter (single-sample or noisy).</p>';
+  recCards.innerHTML = '';
 
-  container.innerHTML = lowConfidenceBanner + top.map((gpu, i) => {
-    const link = getAmazonLink(gpu.name);
+  top.forEach((gpu, i) => {
     const isBest = i === 0;
-    return `
-      <div class="rec-card ${isBest ? 'best' : ''}">
-        ${isBest ? '<span class="rec-badge">Best Value</span>' : `<span class="rec-badge" style="background:var(--text-muted)">#${i + 1}</span>`}
-        <div class="rec-gpu-name">${gpu.name}</div>
-        <div class="rec-stats">
-          <div class="rec-stat">
-            <span class="rec-stat-label">Speed</span>
-            <span class="rec-stat-value speed">${gpu.speed.toFixed(1)} tok/s</span>
-          </div>
-          <div class="rec-stat">
-            <span class="rec-stat-label">${condition === 'new' ? 'New' : 'Used'} Price</span>
-            <span class="rec-stat-value price">$${gpu.price}</span>
-          </div>
-          <div class="rec-stat">
-            <span class="rec-stat-label">VRAM</span>
-            <span class="rec-stat-value vram">${gpu.vram ? gpu.vram + ' GB' : 'N/A'}</span>
-          </div>
-          <div class="rec-stat">
-            <span class="rec-stat-label">Value</span>
-            <span class="rec-stat-value">${gpu.value.toFixed(2)} tok/s/$</span>
-          </div>
-          <div class="rec-stat">
-            <span class="rec-stat-label">Reliability</span>
-            <span class="rec-stat-value">${gpu.successRate !== null ? gpu.successRate.toFixed(1) + '% ok' : (gpu.noisy ? 'Noisy' : 'N/A')}</span>
-          </div>
-        </div>
-        ${link ? `<a href="${link}" target="_blank" rel="noopener noreferrer" class="buy-btn">View on Amazon &rarr;</a>` : ''}
-      </div>
-    `;
-  }).join('');
-}
+    const rankLabel = isBest ? 'Best Value' : '#' + (i + 1);
+    const cardClass = 'rec-card' + (isBest ? ' rec-card--best' : '');
+    const badgeClass = 'rec-rank-badge' + (isBest ? ' rec-rank-badge--best' : '');
 
-// ========== COLUMN TOGGLE ==========
-const DEFAULT_MODELS = ['llama3.1:8b', 'mistral:7b', 'gemma2:9b', 'qwen2.5:7b', 'llama3.2:3b'];
-let activeModelColumns = new Set(DEFAULT_MODELS);
+    const priceLabel = condition === 'new' ? 'New Price'
+                     : condition === 'build' ? 'Build Cost'
+                     : 'Used Price';
+    const priceFormatted = '$' + gpu.price.toLocaleString('en-US');
+    const vramText = gpu.vram !== null ? gpu.vram + ' GB' : '&#8212;';
+    const valueText = (gpu.value * 1000).toFixed(0) + ' tok/$K';
 
-function populateColumnToggles() {
-  const container = document.getElementById('model-column-toggles');
-  if (!container || !benchmarkData) return;
+    const amazonLink = (typeof getAffiliateLink === 'function') ? getAffiliateLink(gpu.name) : null;
+    const priceEntry = getGpuPriceEntry(gpu.name);
+    const rentalRate = priceEntry ? priceEntry.vastai_rental_usd_per_hr : undefined;
+    const vastaiLink = (typeof getVastaiReferralLink === 'function') ? getVastaiReferralLink() : 'https://vast.ai';
 
-  const models = benchmarkData.models.map(m => m.name);
-  container.innerHTML = '';
+    const buyBtn = amazonLink
+      ? '<a href="' + escapeAttr(amazonLink) + '" target="_blank" rel="noopener noreferrer sponsored" class="btn btn--primary">Buy on Amazon</a>'
+      : '';
+    const rentBtn = (rentalRate !== undefined && rentalRate !== null)
+      ? '<a href="' + escapeAttr(vastaiLink) + '" target="_blank" rel="noopener noreferrer sponsored" class="btn btn--rent">Rent on Vast.ai</a>'
+      : '';
 
-  models.forEach(modelName => {
-    const pill = document.createElement('span');
-    pill.className = 'model-toggle-pill' + (activeModelColumns.has(modelName) ? ' active' : '');
-    pill.textContent = modelName;
-    pill.dataset.model = modelName;
-    pill.onclick = function() {
-      if (activeModelColumns.has(modelName)) {
-        if (activeModelColumns.size > 1) {
-          activeModelColumns.delete(modelName);
-        }
-      } else {
-        activeModelColumns.add(modelName);
-      }
-      renderTable();
-    };
-    container.appendChild(pill);
+    const lowConfHidden = (gpu.samples !== 1) ? ' hidden' : '';
+
+    const card = document.createElement('div');
+    card.className = cardClass;
+    card.innerHTML =
+      '<div class="rec-card-header">' +
+        '<span class="' + badgeClass + '">' + rankLabel + '</span>' +
+        '<h3 class="rec-gpu-name">' + escapeHtml(gpu.name) + '</h3>' +
+      '</div>' +
+      '<dl class="rec-stats">' +
+        '<div class="rec-stat">' +
+          '<dt class="rec-stat-label">Speed</dt>' +
+          '<dd class="rec-stat-value rec-stat-value--speed">' + gpu.speed.toFixed(1) + ' tok/s</dd>' +
+        '</div>' +
+        '<div class="rec-stat">' +
+          '<dt class="rec-stat-label">' + priceLabel + '</dt>' +
+          '<dd class="rec-stat-value rec-stat-value--price">' + priceFormatted + '</dd>' +
+        '</div>' +
+        '<div class="rec-stat">' +
+          '<dt class="rec-stat-label">VRAM</dt>' +
+          '<dd class="rec-stat-value">' + vramText + '</dd>' +
+        '</div>' +
+        '<div class="rec-stat">' +
+          '<dt class="rec-stat-label">Value</dt>' +
+          '<dd class="rec-stat-value">' + valueText + '</dd>' +
+        '</div>' +
+      '</dl>' +
+      '<div class="rec-card-actions">' +
+        buyBtn +
+        rentBtn +
+      '</div>' +
+      '<p class="rec-low-confidence"' + lowConfHidden + '>Single-sample data — treat as estimate.</p>';
+
+    recCards.appendChild(card);
   });
 }
 
-function showTopModels() {
-  activeModelColumns = new Set(DEFAULT_MODELS);
-  renderTable();
-}
+// ── BENCHMARK TABLE ──
 
-// ========== BENCHMARK TABLE ==========
 function renderTable() {
-  const thead = document.getElementById('tableHead');
-  const tbody = document.getElementById('tableBody');
+  const thead = document.getElementById('table-head');
+  const tbody = document.getElementById('table-body');
   if (!thead || !tbody || !benchmarkData) return;
 
-  // Sync toggle pills
-  populateColumnToggles();
+  // Sync GPU row pills and model column pills before building table
+  populateGpuPills();
+  populateModelPills();
 
-  const allModels = benchmarkData.models.map(m => m.name);
-  // Filter to only active columns; fall back to all if none match active
+  const allModels = (benchmarkData.models || []).map(m => m.name);
   let models = allModels.filter(m => activeModelColumns.has(m));
   if (models.length === 0) models = allModels;
-  const gpus = [...benchmarkData.gpus];
 
-  // Sort GPUs
+  // Filter GPU rows first, then sort the filtered subset
+  let gpus = (benchmarkData.gpus || []).filter(g => activeGpuRows.has(g.name));
+
+  // Apply sort
   if (sortColumn === 'gpu') {
     gpus.sort((a, b) => {
       const cmp = a.name.localeCompare(b.name);
@@ -400,17 +367,17 @@ function renderTable() {
     });
   } else if (sortColumn === 'vram') {
     gpus.sort((a, b) => {
-      const va = getVram(a.name) || 0;
-      const vb = getVram(b.name) || 0;
+      const va = getVramGb(a.name) || 0;
+      const vb = getVramGb(b.name) || 0;
       return sortDirection === 'asc' ? va - vb : vb - va;
     });
   } else if (sortColumn === 'price') {
     gpus.sort((a, b) => {
-      const pa = getPrice(a.name) || 99999;
-      const pb = getPrice(b.name) || 99999;
+      const pa = getActivePrice(a.name) || Infinity;
+      const pb = getActivePrice(b.name) || Infinity;
       return sortDirection === 'asc' ? pa - pb : pb - pa;
     });
-  } else if (sortColumn) {
+  } else if (sortColumn !== null) {
     // Sort by a model column
     gpus.sort((a, b) => {
       const va = getBenchmarkSpeed(a.benchmarks[sortColumn]) || 0;
@@ -419,439 +386,662 @@ function renderTable() {
     });
   }
 
-  // Collect all speed values for heatmap scaling
+  // Collect all speed values for heatmap (all inference types participate)
   const allSpeeds = [];
   for (const gpu of gpus) {
     for (const m of models) {
-      const v = getBenchmarkSpeed(gpu.benchmarks[m]);
-      if (v) allSpeeds.push(v);
+      const bench = (gpu.benchmarks || {})[m];
+      if (!bench) continue;
+      const v = getBenchmarkSpeed(bench);
+      if (v !== null) allSpeeds.push(v);
     }
   }
+  const { p60, p80 } = computeHeatmap(allSpeeds);
 
-  // Build header
-  const sortClass = (col) => {
-    if (sortColumn !== col) return '';
-    return sortDirection === 'asc' ? 'sorted-asc' : 'sorted-desc';
-  };
+  // ── Build thead ──
+  const headRow = document.createElement('tr');
 
-  // Use first active model as efficiency reference
-  const efficiencyRefModel = models[0] || null;
+  // GPU column header
+  const thGpu = document.createElement('th');
+  thGpu.className = 'col-gpu' + getSortClass('gpu');
+  thGpu.textContent = 'GPU';
+  thGpu.dataset.sort = 'gpu';
+  headRow.appendChild(thGpu);
 
-  thead.innerHTML = `<tr>
-    <th class="${sortClass('gpu')}" onclick="sortBy('gpu')">GPU</th>
-    <th class="${sortClass('vram')}" onclick="sortBy('vram')">VRAM</th>
-    <th class="${sortClass('price')}" onclick="sortBy('price')">Price</th>
-    <th title="Tokens per second divided by GPU power draw (higher = more efficient). Based on ${efficiencyRefModel || 'first model'} speed vs TDP reference.">Efficiency<br><small style="font-weight:normal; color:#94a3b8;">tok/s/W</small></th>
-    ${models.map(m => {
-      const short = m.replace('deepseek-r1:', 'ds-r1:').replace('mistral-small:', 'mis:');
-      return `<th class="${sortClass(m)}" onclick="sortBy('${m}')" title="${m}">${short}</th>`;
-    }).join('')}
-  </tr>`;
+  // VRAM column header
+  const thVram = document.createElement('th');
+  thVram.className = 'col-vram' + getSortClass('vram');
+  thVram.textContent = 'VRAM';
+  thVram.dataset.sort = 'vram';
+  headRow.appendChild(thVram);
 
-  // Build body
-  tbody.innerHTML = gpus.map(gpu => {
-    const price = getPrice(gpu.name);
-    const vram = getVram(gpu.name);
-    const link = getAmazonLink(gpu.name);
-    const gpuCell = link
-      ? `<a href="${link}" target="_blank" rel="noopener noreferrer">${gpu.name}</a>`
-      : gpu.name;
+  // Price column header
+  const thPrice = document.createElement('th');
+  thPrice.className = 'col-price' + getSortClass('price');
+  thPrice.textContent = condition === 'new' ? 'New Price'
+                      : condition === 'build' ? 'Build Cost'
+                      : 'Used Price';
+  thPrice.dataset.sort = 'price';
+  headRow.appendChild(thPrice);
 
-    // Efficiency cell: use reference model speed / TDP
-    let efficiencyCell = '<td class="na-cell">--</td>';
-    if (efficiencyRefModel) {
-      const refSpeed = getBenchmarkSpeed(gpu.benchmarks[efficiencyRefModel]);
-      const eff = getEfficiencyScore(gpu.name, refSpeed);
-      if (eff !== null) {
-        efficiencyCell = `<td class="speed-cell" title="Based on ${efficiencyRefModel} speed (${refSpeed ? refSpeed.toFixed(1) : '--'} tok/s) / TDP reference (est.)" style="color:#a78bfa;">${eff} <small style="color:#94a3b8; font-size:0.7rem;">(est.)</small></td>`;
+  // Model columns
+  models.forEach(m => {
+    const th = document.createElement('th');
+    th.className = 'col-model' + getSortClass(m);
+    th.textContent = MODEL_SHORTNAMES[m] || m;
+    th.title = m;
+    th.dataset.sort = m;
+    headRow.appendChild(th);
+  });
+
+  // Attach sort listeners to all th elements
+  headRow.querySelectorAll('th[data-sort]').forEach(th => {
+    th.addEventListener('click', () => sortBy(th.dataset.sort));
+  });
+
+  thead.innerHTML = '';
+  thead.appendChild(headRow);
+
+  // ── Build tbody ──
+  const fragment = document.createDocumentFragment();
+
+  for (const gpu of gpus) {
+    const tr = document.createElement('tr');
+
+    // GPU name cell
+    const tdGpu = document.createElement('td');
+    tdGpu.className = 'col-gpu';
+    const amazonLink = (typeof getAffiliateLink === 'function') ? getAffiliateLink(gpu.name) : null;
+    const nameText = escapeHtml(gpu.name);
+    let gpuCellInner = amazonLink
+      ? '<a href="' + escapeAttr(amazonLink) + '" target="_blank" rel="noopener noreferrer sponsored">' + nameText + '</a>'
+      : nameText;
+
+    // Low confidence badge: show if GPU has data for active models but none has samples > 1
+    const activeBenches = models
+      .map(m => (gpu.benchmarks || {})[m])
+      .filter(b => b !== undefined && b !== null);
+    if (activeBenches.length > 0) {
+      const hasHighSample = activeBenches.some(b => (b.samples || 0) >= 2);
+      if (!hasHighSample) {
+        gpuCellInner += ' <span class="badge badge--low">1 sample</span>';
       }
     }
+    tdGpu.innerHTML = gpuCellInner;
+    tr.appendChild(tdGpu);
 
-    const cells = models.map(m => {
-      const bench = gpu.benchmarks[m];
-      if (!bench) return '<td class="na-cell">--</td>';
-      const v = getBenchmarkSpeed(bench);
-      if (v == null) return '<td class="na-cell">--</td>';
-      const inferenceType = bench.inference_type || 'gpu_full';
-      const isOffload = inferenceType === 'cpu_offload';
-      const isPartial = inferenceType === 'gpu_partial';
-      const heat = getHeatClass(v, allSpeeds);
-      const reliability = typeof bench.success_rate_pct === 'number'
-        ? `${bench.success_rate_pct.toFixed(1)}% ok`
-        : (bench.noisy ? 'noisy' : 'n/a');
+    // VRAM cell
+    const tdVram = document.createElement('td');
+    tdVram.className = 'col-vram';
+    const vram = getVramGb(gpu.name);
+    tdVram.textContent = vram !== null ? vram + ' GB' : '';
+    if (vram === null) tdVram.innerHTML = '&#8212;';
+    tr.appendChild(tdVram);
 
-      let offloadBadge = '';
-      let cellClass = `speed-cell ${heat}`;
-      let tooltipExtra = '';
-      if (isOffload) {
-        cellClass = 'speed-cell cell-offload';
-        offloadBadge = ' <span class="badge-offload">CPU&#8593;</span>';
-        tooltipExtra = ' | Partial GPU offload — RAM bandwidth and PCIe bandwidth are key bottlenecks. Not all layers fit in VRAM.';
-        if (bench.offload_ratio != null) {
-          tooltipExtra += ` (${Math.round(bench.offload_ratio * 100)}% on CPU)`;
-        }
-      } else if (isPartial) {
-        cellClass = 'speed-cell cell-partial';
-        offloadBadge = ' <span class="badge-partial">~CPU</span>';
-        tooltipExtra = ' | Minor GPU offload — most layers on GPU.';
+    // Price cell
+    const tdPrice = document.createElement('td');
+    tdPrice.className = 'col-price';
+    const price = getActivePrice(gpu.name);
+    tdPrice.textContent = price !== null ? '$' + price.toLocaleString('en-US') : '';
+    if (price === null) tdPrice.innerHTML = '&#8212;';
+    tr.appendChild(tdPrice);
+
+    // Model benchmark cells
+    for (const m of models) {
+      const td = document.createElement('td');
+      const bench = (gpu.benchmarks || {})[m];
+      if (!bench) {
+        td.className = 'col-speed col-speed--na';
+        td.innerHTML = '&#8212;';
+        tr.appendChild(td);
+        continue;
       }
 
-      const title = `${bench.samples} samples, min: ${bench.min_tokens_per_sec}, max: ${bench.max_tokens_per_sec}, reliability: ${reliability}${tooltipExtra}`;
-      return `<td class="${cellClass}" title="${title}">${v.toFixed(1)}${offloadBadge}</td>`;
-    }).join('');
+      const speed = getBenchmarkSpeed(bench);
+      if (speed === null) {
+        td.className = 'col-speed col-speed--na';
+        td.innerHTML = '&#8212;';
+        tr.appendChild(td);
+        continue;
+      }
 
-    return `<tr>
-      <td class="gpu-cell">${gpuCell}</td>
-      <td class="vram-cell">${vram ? vram + ' GB' : '--'}</td>
-      <td class="speed-cell">${price ? '$' + price : '--'}</td>
-      ${efficiencyCell}
-      ${cells}
-    </tr>`;
-  }).join('');
+      const inferenceType = bench.inference_type || 'gpu_full';
+      const cellClass = getCellClass(speed, inferenceType, { p60, p80 });
+      td.className = cellClass;
+
+      // Tooltip
+      const minTps = typeof bench.min_tokens_per_sec === 'number' ? bench.min_tokens_per_sec.toFixed(1) : '?';
+      const maxTps = typeof bench.max_tokens_per_sec === 'number' ? bench.max_tokens_per_sec.toFixed(1) : '?';
+      const samples = bench.samples || '?';
+      td.title = samples + ' sample' + (samples !== 1 ? 's' : '') + ', range: ' + minTps + '\u2013' + maxTps + ' tok/s';
+
+      let cellInner = speed.toFixed(1);
+
+      // Offload indicator: superscript icon with JS tooltip (avoids CSS overflow clipping)
+      if (inferenceType === 'cpu_offload') {
+        cellInner += '<span class="offload-icon" tabindex="0" role="img" aria-label="CPU offload warning" data-tooltip="CPU offload: model weights exceed VRAM. Layers run on system RAM \u2014 expect 2\u20135\u00d7 slower than pure GPU.">\u26a0</span>';
+      } else if (inferenceType === 'gpu_partial') {
+        cellInner += '<span class="offload-icon offload-icon--partial" tabindex="0" role="img" aria-label="Partial offload" data-tooltip="Partial offload: most layers fit in VRAM, a few spill to system RAM. Some speed penalty.">~</span>';
+      }
+
+      td.innerHTML = cellInner;
+      tr.appendChild(td);
+    }
+
+    fragment.appendChild(tr);
+  }
+
+  tbody.innerHTML = '';
+  if (gpus.length === 0) {
+    // activeGpuRows is empty — show a helpful message instead of a blank table
+    const colCount = 3 + models.length;
+    const tr = document.createElement('tr');
+    tr.className = 'row-no-gpus';
+    const td = document.createElement('td');
+    td.colSpan = colCount;
+    td.textContent = 'No GPUs selected. Use the GPU filters above to show results.';
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+  } else {
+    tbody.appendChild(fragment);
+  }
 }
 
-function getHeatClass(value, allValues) {
-  if (!allValues.length) return '';
-  const sorted = [...allValues].sort((a, b) => a - b);
-  const idx = sorted.findIndex(v => v >= value);
-  const pct = idx / sorted.length;
-  if (pct < 0.2) return 'heat-1';
-  if (pct < 0.4) return 'heat-2';
-  if (pct < 0.6) return 'heat-3';
-  if (pct < 0.8) return 'heat-4';
-  return 'heat-5';
+function populateModelPills() {
+  const container = document.getElementById('model-pills');
+  if (!container || !benchmarkData) return;
+
+  const allModels = (benchmarkData.models || []).map(m => m.name);
+  container.innerHTML = '';
+
+  allModels.forEach(modelName => {
+    const btn = document.createElement('button');
+    btn.className = 'model-pill' + (activeModelColumns.has(modelName) ? ' model-pill--active' : '');
+    btn.textContent = MODEL_SHORTNAMES[modelName] || modelName;
+    btn.title = modelName;
+    btn.addEventListener('click', () => {
+      if (activeModelColumns.has(modelName)) {
+        // Enforce minimum 1 active
+        if (activeModelColumns.size <= 1) return;
+        activeModelColumns.delete(modelName);
+      } else {
+        activeModelColumns.add(modelName);
+      }
+      renderTable();
+    });
+    container.appendChild(btn);
+  });
+}
+
+function populateGpuPills() {
+  const container = document.getElementById('gpu-pills');
+  if (!container || !benchmarkData) return;
+
+  const allGpus = (benchmarkData.gpus || []).map(g => g.name);
+  container.innerHTML = '';
+
+  allGpus.forEach(gpuName => {
+    const btn = document.createElement('button');
+    btn.className = 'gpu-pill' + (activeGpuRows.has(gpuName) ? ' gpu-pill--active' : '');
+    btn.textContent = gpuName;
+    btn.title = activeGpuRows.has(gpuName) ? 'Hide ' + gpuName : 'Show ' + gpuName;
+    btn.addEventListener('click', () => {
+      if (activeGpuRows.has(gpuName)) activeGpuRows.delete(gpuName);
+      else activeGpuRows.add(gpuName);
+      renderTable();
+    });
+    container.appendChild(btn);
+  });
+}
+
+function computeHeatmap(speeds) {
+  if (!speeds || speeds.length === 0) return { p60: 0, p80: 0 };
+  const sorted = [...speeds].sort((a, b) => a - b);
+  const n = sorted.length;
+  const p60 = sorted[Math.floor(n * 0.60)] || 0;
+  const p80 = sorted[Math.floor(n * 0.80)] || 0;
+  return { p60, p80 };
+}
+
+function getCellClass(speed, inferenceType, pct) {
+  // All cells participate in heatmap coloring; offload type shown via .offload-icon superscript
+  const { p60, p80 } = pct || { p60: 0, p80: 0 };
+  if (p80 > 0 && speed >= p80) return 'col-speed col-speed--hot';
+  if (p60 > 0 && speed >= p60) return 'col-speed col-speed--warm';
+  return 'col-speed';
+}
+
+function getSortClass(col) {
+  if (sortColumn !== col) return '';
+  return sortDirection === 'asc' ? ' col-sorted-asc' : ' col-sorted-desc';
 }
 
 function sortBy(column) {
   if (sortColumn === column) {
-    sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+    if (sortDirection === 'desc') {
+      // Second click: switch to asc
+      sortDirection = 'asc';
+    } else {
+      // Third click: clear sort
+      sortColumn = null;
+      sortDirection = 'desc';
+    }
   } else {
+    // First click on new column: desc
     sortColumn = column;
     sortDirection = 'desc';
   }
   renderTable();
 }
 
-// ========== CHARTS ==========
-let barChart = null;
-let scatterChart = null;
+// ── BREAKEVEN CALCULATOR ──
 
-function renderCharts() {
-  const model = document.getElementById('chartModelSelect')?.value || currentModel;
-  if (!model || !benchmarkData) return;
+function populateBreakevenGpuSelect() {
+  const sel = document.getElementById('be-gpu-select');
+  const resultEl = document.getElementById('breakeven-result');
+  if (!sel || !benchmarkData || !gpuPrices) return;
 
-  renderBarChart(model);
-  renderScatterChart(model);
-}
-
-function renderBarChart(model) {
-  const ctx = document.getElementById('barChart')?.getContext('2d');
-  if (!ctx) return;
-
-  const items = benchmarkData.gpus
-    .filter(g => g.benchmarks[model])
-    .map(g => ({ name: g.name, speed: getBenchmarkSpeed(g.benchmarks[model]) }))
-    .filter(g => g.speed !== null)
-    .sort((a, b) => b.speed - a.speed);
-
-  if (barChart) barChart.destroy();
-
-  barChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: items.map(i => i.name),
-      datasets: [{
-        label: 'Tokens/s',
-        data: items.map(i => i.speed),
-        backgroundColor: items.map((_, idx) => {
-          const pct = idx / items.length;
-          if (pct < 0.33) return 'rgba(34, 197, 94, 0.7)';
-          if (pct < 0.66) return 'rgba(234, 179, 8, 0.7)';
-          return 'rgba(239, 68, 68, 0.7)';
-        }),
-        borderColor: 'transparent',
-        borderRadius: 6,
-      }],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      indexAxis: 'y',
-      plugins: {
-        legend: { display: false },
-        title: {
-          display: true,
-          text: `Tokens/s by GPU - ${model}`,
-          color: '#e8eaed',
-          font: { size: 14, family: 'Inter' },
-        },
-      },
-      scales: {
-        x: {
-          grid: { color: 'rgba(255,255,255,0.05)' },
-          ticks: { color: '#9aa0a6' },
-        },
-        y: {
-          grid: { display: false },
-          ticks: { color: '#e8eaed', font: { size: 11 } },
-        },
-      },
-    },
+  // Filter: GPUs in benchmarkData that also have vastai_rental_usd_per_hr in gpu_prices
+  const qualifying = (benchmarkData.gpus || []).filter(gpu => {
+    const entry = getGpuPriceEntry(gpu.name);
+    return entry && typeof entry.vastai_rental_usd_per_hr === 'number';
   });
-}
 
-function renderScatterChart(model) {
-  const ctx = document.getElementById('scatterChart')?.getContext('2d');
-  if (!ctx) return;
+  sel.innerHTML = '';
 
-  const items = benchmarkData.gpus
-    .filter(g => g.benchmarks[model] && getPrice(g.name))
-    .map(g => ({
-      name: g.name,
-      speed: getBenchmarkSpeed(g.benchmarks[model]),
-      price: getPrice(g.name),
-    }))
-    .filter(g => g.speed !== null);
-
-  if (scatterChart) scatterChart.destroy();
-
-  scatterChart = new Chart(ctx, {
-    type: 'scatter',
-    data: {
-      datasets: [{
-        label: 'GPU',
-        data: items.map(i => ({ x: i.price, y: i.speed, name: i.name })),
-        backgroundColor: 'rgba(59, 130, 246, 0.7)',
-        borderColor: 'rgba(59, 130, 246, 1)',
-        pointRadius: 8,
-        pointHoverRadius: 12,
-      }],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        title: {
-          display: true,
-          text: `Price vs Performance - ${model}`,
-          color: '#e8eaed',
-          font: { size: 14, family: 'Inter' },
-        },
-        tooltip: {
-          callbacks: {
-            label: (ctx) => {
-              const d = ctx.raw;
-              return `${d.name}: ${d.y.toFixed(1)} tok/s @ $${d.x}`;
-            },
-          },
-        },
-      },
-      scales: {
-        x: {
-          title: { display: true, text: `Price (${condition === 'new' ? 'New' : 'Used'})`, color: '#9aa0a6' },
-          grid: { color: 'rgba(255,255,255,0.05)' },
-          ticks: { color: '#9aa0a6', callback: v => '$' + v },
-        },
-        y: {
-          title: { display: true, text: 'Tokens/s', color: '#9aa0a6' },
-          grid: { color: 'rgba(255,255,255,0.05)' },
-          ticks: { color: '#9aa0a6' },
-        },
-      },
-    },
-  });
-}
-
-// ========== TOKEN/S VISUALIZER ==========
-const sampleText = "The fascinating world of artificial intelligence continues to evolve at a remarkable pace, with large language models becoming increasingly capable of understanding and generating human-like text across a wide range of topics and tasks. These models, trained on vast amounts of data, can now assist with everything from creative writing and code generation to complex reasoning and scientific analysis. As the technology matures, the question of how to deploy these models efficiently becomes more important than ever, with hardware choices playing a crucial role in determining both the speed and cost of inference.";
-
-function populateVisualizerSelects() {
-  const gpu1 = document.getElementById('vizGpu1');
-  const gpu2 = document.getElementById('vizGpu2');
-  if (!gpu1 || !benchmarkData) return;
-
-  [gpu1, gpu2].forEach((sel, idx) => {
-    sel.innerHTML = '';
-    benchmarkData.gpus.forEach((g, i) => {
-      const opt = document.createElement('option');
-      opt.value = g.name;
-      opt.textContent = g.name;
-      sel.appendChild(opt);
-    });
-    // Default: first GPU for panel 1, second for panel 2
-    if (benchmarkData.gpus.length > idx) {
-      sel.value = benchmarkData.gpus[idx].name;
-    }
-  });
-}
-
-function startVisualizer() {
-  stopVisualizer();
-  vizRunning = true;
-
-  const model = document.getElementById('vizModelSelect')?.value;
-  if (!model) return;
-
-  const gpu1Name = document.getElementById('vizGpu1')?.value;
-  const gpu2Name = document.getElementById('vizGpu2')?.value;
-
-  // Get speed for GPU 1
-  const gpu1Data = benchmarkData.gpus.find(g => g.name === gpu1Name);
-  const speed1 = getBenchmarkSpeed(gpu1Data?.benchmarks[model]) || 0;
-
-  updateVizHeader('vizPanel1', gpu1Name, speed1);
-  animateText('vizOutput1', speed1);
-
-  if (vizCompareMode && gpu2Name) {
-    const gpu2Data = benchmarkData.gpus.find(g => g.name === gpu2Name);
-    const speed2 = getBenchmarkSpeed(gpu2Data?.benchmarks[model]) || 0;
-    updateVizHeader('vizPanel2', gpu2Name, speed2);
-    animateText('vizOutput2', speed2);
+  if (qualifying.length === 0) {
+    if (resultEl) resultEl.textContent = 'Rental price data not yet available. Check back soon.';
+    return;
   }
 
-  document.getElementById('vizStartBtn').textContent = 'Stop';
-  document.getElementById('vizStartBtn').classList.add('active');
+  qualifying.forEach(gpu => {
+    const opt = document.createElement('option');
+    opt.value = gpu.name;
+    opt.textContent = gpu.name;
+    sel.appendChild(opt);
+  });
+
+  // Pre-fill price input with price of first qualifying GPU
+  prefillBreakevenPrice();
 }
 
-function stopVisualizer() {
-  vizRunning = false;
-  vizAnimationIds.forEach(id => cancelAnimationFrame(id));
-  vizAnimationIds = [];
-  document.getElementById('vizStartBtn').textContent = 'Start';
-  document.getElementById('vizStartBtn').classList.remove('active');
-}
+function prefillBreakevenPrice() {
+  const sel        = document.getElementById('be-gpu-select');
+  const priceInput = document.getElementById('be-price-input');
+  const priceLabel = document.getElementById('be-price-label');
+  if (!sel || !priceInput) return;
 
-function toggleVisualizer() {
-  if (vizRunning) stopVisualizer();
-  else startVisualizer();
-}
-
-function updateVizHeader(panelId, gpuName, speed) {
-  const panel = document.getElementById(panelId);
-  if (!panel) return;
-  panel.querySelector('.gpu-label').textContent = gpuName;
-  panel.querySelector('.speed-label').textContent = speed > 0 ? speed.toFixed(1) + ' tok/s' : 'N/A';
-}
-
-function animateText(outputId, tokensPerSec) {
-  const output = document.getElementById(outputId);
-  if (!output) return;
-
-  output.innerHTML = '<span class="cursor"></span>';
-  const words = sampleText.split(' ');
-  let wordIdx = 0;
-  let lastTime = null;
-
-  // Roughly 1.3 tokens per word on average
-  const wordsPerSec = tokensPerSec / 1.3;
-  const msPerWord = wordsPerSec > 0 ? 1000 / wordsPerSec : 99999;
-
-  function step(timestamp) {
-    if (!vizRunning) return;
-    if (!lastTime) lastTime = timestamp;
-
-    if (timestamp - lastTime >= msPerWord && wordIdx < words.length) {
-      // Remove cursor, add word, add cursor back
-      const cursor = output.querySelector('.cursor');
-      if (cursor) cursor.remove();
-
-      const span = document.createElement('span');
-      span.textContent = words[wordIdx] + ' ';
-      output.appendChild(span);
-
-      const newCursor = document.createElement('span');
-      newCursor.className = 'cursor';
-      output.appendChild(newCursor);
-
-      output.scrollTop = output.scrollHeight;
-      wordIdx++;
-      lastTime = timestamp;
-    }
-
-    if (wordIdx < words.length) {
-      const id = requestAnimationFrame(step);
-      vizAnimationIds.push(id);
-    }
-  }
-
-  const id = requestAnimationFrame(step);
-  vizAnimationIds.push(id);
-}
-
-function toggleCompare() {
-  vizCompareMode = !vizCompareMode;
-  const display = document.getElementById('vizDisplay');
-  const panel2 = document.getElementById('vizPanel2');
-  const gpu2Group = document.getElementById('vizGpu2Group');
-  const compareBtn = document.getElementById('compareBtn');
-
-  if (vizCompareMode) {
-    display.classList.add('compare');
-    panel2.style.display = 'block';
-    gpu2Group.style.display = 'block';
-    compareBtn.classList.add('active');
+  if (condition === 'build') {
+    const buildPrice = getActivePrice(sel.value);
+    if (buildPrice !== null) priceInput.value = buildPrice;
+    if (priceLabel) priceLabel.textContent = 'Total Build Cost ($)';
   } else {
-    display.classList.remove('compare');
-    panel2.style.display = 'none';
-    gpu2Group.style.display = 'none';
-    compareBtn.classList.remove('active');
+    const usedPrice = getUsedPrice(sel.value);
+    if (usedPrice !== null) priceInput.value = usedPrice;
+    if (priceLabel) priceLabel.textContent = 'GPU Used Price ($)';
+  }
+}
+
+function renderBreakeven() {
+  const resultEl = document.getElementById('breakeven-result');
+  if (!resultEl) return;
+
+  const sel = document.getElementById('be-gpu-select');
+  const hoursEl = document.getElementById('be-hours-range');
+  const priceInputEl = document.getElementById('be-price-input');
+
+  if (!sel || !sel.value || !hoursEl || !priceInputEl) {
+    return;
   }
 
-  if (vizRunning) startVisualizer();
+  const gpuName = sel.value;
+  const hoursPerDay = parseFloat(hoursEl.value) || 0;
+  const purchasePrice = parseFloat(priceInputEl.value) || 0;
+
+  const entry = getGpuPriceEntry(gpuName);
+  const rentalRate = entry ? entry.vastai_rental_usd_per_hr : null;
+
+  if (!rentalRate || rentalRate <= 0) {
+    resultEl.textContent = 'Rental price data not yet available. Check back soon.';
+    return;
+  }
+
+  if (hoursPerDay <= 0 || purchasePrice <= 0) {
+    resultEl.innerHTML = '<p class="breakeven-verdict">Enter a valid price and usage to calculate breakeven.</p>';
+    return;
+  }
+
+  const rentalCostPerDay   = hoursPerDay * rentalRate;
+  const rentalCostPerMonth = rentalCostPerDay * 30.44;
+  const breakevenMonths    = purchasePrice / rentalCostPerMonth;
+  const breakevenHours     = purchasePrice / rentalRate;
+
+  // Update Vast.ai referral link
+  const vastaiRefLink = document.getElementById('vastai-referral-link');
+  if (vastaiRefLink && typeof getVastaiReferralLink === 'function') {
+    vastaiRefLink.href = getVastaiReferralLink();
+  }
+
+  let verdict;
+  if (breakevenMonths < 12) {
+    verdict = 'Break even in under 12 months — buying is likely worth it at this usage level.';
+  } else if (breakevenMonths <= 36) {
+    verdict = 'Break even in 1\u20133 years \u2014 depends on how long you\'ll use it.';
+  } else {
+    verdict = 'Over 3 years to break even — renting is probably smarter.';
+  }
+
+  const purchaseLabel = condition === 'build' ? 'Total Build Cost' : 'Purchase price';
+
+  resultEl.innerHTML =
+    '<div class="breakeven-output">' +
+      '<div class="breakeven-stat-row">' +
+        '<div class="breakeven-stat">' +
+          '<span class="breakeven-stat-label">Breakeven</span>' +
+          '<span class="breakeven-stat-value breakeven-stat-value--primary">' + breakevenMonths.toFixed(1) + ' months</span>' +
+          '<span class="breakeven-stat-sub">at ' + hoursPerDay + ' hr/day usage</span>' +
+        '</div>' +
+        '<div class="breakeven-stat">' +
+          '<span class="breakeven-stat-label">Total hours to break even</span>' +
+          '<span class="breakeven-stat-value">' + Math.round(breakevenHours).toLocaleString('en-US') + ' hours</span>' +
+        '</div>' +
+        '<div class="breakeven-stat">' +
+          '<span class="breakeven-stat-label">Monthly rental cost</span>' +
+          '<span class="breakeven-stat-value breakeven-stat-value--rent">$' + rentalCostPerMonth.toFixed(2) + '</span>' +
+          '<span class="breakeven-stat-sub">$' + rentalRate.toFixed(2) + '/hr \u00d7 ' + hoursPerDay + ' hr/day</span>' +
+        '</div>' +
+        '<div class="breakeven-stat">' +
+          '<span class="breakeven-stat-label">' + purchaseLabel + '</span>' +
+          '<span class="breakeven-stat-value">$' + purchasePrice.toLocaleString('en-US') + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<p class="breakeven-verdict">' + escapeHtml(verdict) + '</p>' +
+    '</div>';
 }
 
-// ========== CONDITION TOGGLE ==========
-function setCondition(c) {
-  condition = c;
-  document.querySelectorAll('.toggle-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.condition === c);
-  });
-  renderRecommendations();
-  renderTable();
-  renderCharts();
+// ── SPEED SIMULATION ──
+
+const SIM_TEXT =
+  'The main bottleneck for LLM inference on a single GPU is memory bandwidth, ' +
+  'not compute. Each forward pass must stream the entire model weight matrix from ' +
+  'VRAM into the shader cores. A 7B model at 4-bit quantization occupies roughly ' +
+  '4 GB; generating one token requires reading most of that. An RTX 4090 has 1008 ' +
+  'GB/s of bandwidth, which is why it sustains 80\u2013120 tok/s on 7B models that fit ' +
+  'in its 24 GB. Halve the bandwidth and you roughly halve throughput. This is also ' +
+  'why running a 70B model across two GPUs over PCIe is slower than a single A100 ' +
+  '\u2014 the inter-GPU link becomes the bottleneck, not the chips themselves.';
+
+function simGetInterval(tokPerSec) {
+  // Minimum 8ms (browser timer floor / ~120fps cap)
+  return Math.max(8, 1000 / (tokPerSec * 4));
 }
 
-// ========== SCROLL ANIMATIONS ==========
-function setupScrollAnimations() {
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-      }
+function simGetCharsPerTick(tokPerSec) {
+  // Batch multiple chars per tick at high speeds so effective rate stays correct
+  const charsPerSec = tokPerSec * 4;
+  const intervalMs  = simGetInterval(tokPerSec);
+  return Math.max(1, Math.round(charsPerSec * intervalMs / 1000));
+}
+
+function simStop() {
+  if (simTimerId !== null) {
+    clearInterval(simTimerId);
+    clearTimeout(simTimerId);
+    simTimerId = null;
+  }
+  simPausing = false;
+}
+
+function simStart() {
+  simStop();
+  if (!simEnabled) return;
+
+  const speedEl   = document.getElementById('rec-speed-range');
+  const tokPerSec = speedEl ? Math.max(1, parseFloat(speedEl.value) || 20) : 20;
+
+  const intervalMs   = simGetInterval(tokPerSec);
+  const charsPerTick = simGetCharsPerTick(tokPerSec);
+  const textEl = document.getElementById('speed-sim-text');
+  if (!textEl) return;
+
+  simTimerId = setInterval(() => {
+    if (simPausing) return;
+
+    const end = Math.min(simCharIndex + charsPerTick, SIM_TEXT.length);
+    textEl.textContent = SIM_TEXT.slice(0, end);
+    simCharIndex = end;
+
+    if (simCharIndex >= SIM_TEXT.length) {
+      simStop();
+      simPausing = true;
+      simTimerId = setTimeout(() => {
+        simPausing   = false;
+        simCharIndex = 0;
+        if (simEnabled) simStart();
+      }, 1500);
+    }
+  }, intervalMs);
+}
+
+function simRestart() {
+  simStop();
+  simCharIndex = 0;
+  const textEl = document.getElementById('speed-sim-text');
+  if (textEl) textEl.textContent = '';
+  if (simEnabled) simStart();
+}
+
+function simUpdateLabel(tokPerSec) {
+  const labelEl = document.getElementById('speed-sim-label');
+  if (labelEl) labelEl.textContent = 'At ' + tokPerSec + ' tok/s, a streamed response looks like:';
+}
+
+// ── EVENT BINDING ──
+
+function bindEvents() {
+  // Recommender: model select
+  const recModelSel = document.getElementById('rec-model-select');
+  if (recModelSel) {
+    recModelSel.addEventListener('change', () => {
+      updateModelHint();
+      renderRecommendations();
     });
-  }, { threshold: 0.1 });
+  }
 
-  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+  // Recommender: speed range
+  const recSpeedRange = document.getElementById('rec-speed-range');
+  const recSpeedVal   = document.getElementById('rec-speed-val');
+  if (recSpeedRange) {
+    recSpeedRange.addEventListener('input', (e) => {
+      if (recSpeedVal) recSpeedVal.textContent = e.target.value + ' tok/s';
+      updateSpeedContext(e.target.value);
+      renderRecommendations();
+    });
+    // Speed simulation: sync rate and label with slider
+    recSpeedRange.addEventListener('input', (e) => {
+      simUpdateLabel(e.target.value);
+      simRestart();
+    });
+  }
+
+  // Speed simulation: toggle button
+  const simToggleBtn = document.getElementById('speed-sim-toggle');
+  if (simToggleBtn) {
+    simToggleBtn.addEventListener('click', () => {
+      simEnabled = !simEnabled;
+      const simEl = document.getElementById('speed-sim');
+      simToggleBtn.textContent = simEnabled ? 'On' : 'Off';
+      simToggleBtn.setAttribute('aria-pressed', String(simEnabled));
+      simToggleBtn.classList.toggle('is-off', !simEnabled);
+      if (simEl) simEl.classList.toggle('is-off', !simEnabled);
+      if (simEnabled) simRestart();
+      else simStop();
+    });
+  }
+
+  // Recommender: budget range
+  const recBudgetRange = document.getElementById('rec-budget-range');
+  const recBudgetVal   = document.getElementById('rec-budget-val');
+  if (recBudgetRange) {
+    recBudgetRange.addEventListener('input', (e) => {
+      if (recBudgetVal) recBudgetVal.textContent = '$' + Number(e.target.value).toLocaleString('en-US');
+      renderRecommendations();
+    });
+  }
+
+  // Condition toggle buttons
+  document.querySelectorAll('.toggle-btn[data-condition]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      condition = btn.dataset.condition;
+      // Update active state
+      document.querySelectorAll('.toggle-btn[data-condition]').forEach(b => {
+        b.classList.toggle('is-active', b.dataset.condition === condition);
+      });
+      // Show/hide build cost hint
+      const buildHint = document.getElementById('build-cost-hint');
+      if (buildHint) buildHint.hidden = (condition !== 'build');
+      renderRecommendations();
+      renderTable();
+      prefillBreakevenPrice();
+    });
+  });
+
+  // Table reset button
+  const tableResetBtn = document.getElementById('table-reset-btn');
+  if (tableResetBtn) {
+    tableResetBtn.addEventListener('click', () => {
+      const availableModels = (benchmarkData.models || []).map(m => m.name);
+      const matching = DEFAULT_MODEL_COLUMNS.filter(m => availableModels.includes(m));
+      activeModelColumns = new Set(
+        matching.length > 0 ? matching : availableModels.slice(0, 4)
+      );
+      activeGpuRows = new Set((benchmarkData.gpus || []).map(g => g.name));
+      sortColumn = null;
+      sortDirection = 'desc';
+      renderTable();
+    });
+  }
+
+  // GPU filter: All button
+  const gpuAllBtn = document.getElementById('gpu-all-btn');
+  if (gpuAllBtn) {
+    gpuAllBtn.addEventListener('click', () => {
+      activeGpuRows = new Set((benchmarkData.gpus || []).map(g => g.name));
+      renderTable();
+    });
+  }
+
+  // GPU filter: None button
+  const gpuNoneBtn = document.getElementById('gpu-none-btn');
+  if (gpuNoneBtn) {
+    gpuNoneBtn.addEventListener('click', () => {
+      activeGpuRows = new Set();
+      renderTable();
+    });
+  }
+
+  // Breakeven: GPU select
+  const beGpuSel = document.getElementById('be-gpu-select');
+  if (beGpuSel) {
+    beGpuSel.addEventListener('change', () => {
+      prefillBreakevenPrice();
+      renderBreakeven();
+    });
+  }
+
+  // Breakeven: hours range
+  const beHoursRange = document.getElementById('be-hours-range');
+  const beHoursVal   = document.getElementById('be-hours-val');
+  if (beHoursRange) {
+    beHoursRange.addEventListener('input', (e) => {
+      if (beHoursVal) beHoursVal.textContent = e.target.value + ' hr/day';
+      renderBreakeven();
+    });
+  }
+
+  // Breakeven: price input
+  const bePriceInput = document.getElementById('be-price-input');
+  if (bePriceInput) {
+    bePriceInput.addEventListener('input', () => {
+      renderBreakeven();
+    });
+  }
+
+  // regionchange custom event from links.js
+  document.addEventListener('regionchange', () => {
+    renderRecommendations();
+    renderTable();
+  });
+
+  // Offload icon tooltip (position:fixed to fully escape table overflow:auto context)
+  document.addEventListener('mouseover', (e) => {
+    const icon = e.target.closest('.offload-icon');
+    if (!icon || !icon.dataset.tooltip) return;
+    let tip = document.getElementById('offload-tooltip');
+    if (!tip) {
+      tip = document.createElement('div');
+      tip.id = 'offload-tooltip';
+      document.body.appendChild(tip);
+    }
+    tip.textContent = icon.dataset.tooltip;
+    const r = icon.getBoundingClientRect();
+    tip.style.left = (r.left + r.width / 2) + 'px';
+    tip.style.top  = (r.top - 4) + 'px';
+    tip.style.opacity = '1';
+  });
+  document.addEventListener('mouseout', (e) => {
+    if (!e.target.closest('.offload-icon')) return;
+    const tip = document.getElementById('offload-tooltip');
+    if (tip) tip.style.opacity = '0';
+  });
 }
 
-// ========== EVENT LISTENERS ==========
-document.addEventListener('DOMContentLoaded', () => {
-  init();
+// ── FOOTER / METADATA ──
 
-  // Recommender controls
-  document.getElementById('modelSelect')?.addEventListener('change', () => {
-    currentModel = document.getElementById('modelSelect').value;
-    renderRecommendations();
-  });
+function updateFooterStats() {
+  if (!benchmarkData) return;
 
-  document.getElementById('speedRange')?.addEventListener('input', (e) => {
-    document.getElementById('speedVal').textContent = e.target.value + ' tok/s';
-    renderRecommendations();
-  });
+  const gpuCount   = (benchmarkData.gpus || []).length;
+  const modelCount = (benchmarkData.models || []).length;
 
-  document.getElementById('budgetRange')?.addEventListener('input', (e) => {
-    document.getElementById('budgetVal').textContent = '$' + e.target.value;
-    renderRecommendations();
-  });
+  // Hero section counts
+  const statGpuEl    = document.getElementById('stat-gpu-count');
+  const statModelEl  = document.getElementById('stat-model-count');
+  if (statGpuEl)   statGpuEl.textContent   = gpuCount;
+  if (statModelEl) statModelEl.textContent = modelCount;
 
-  // Chart model select
-  document.getElementById('chartModelSelect')?.addEventListener('change', () => {
-    renderCharts();
-  });
+  // Footer counts
+  const footerGpuEl   = document.getElementById('stat-gpu-count-footer');
+  const footerModelEl = document.getElementById('stat-model-count-footer');
+  if (footerGpuEl)   footerGpuEl.textContent   = gpuCount;
+  if (footerModelEl) footerModelEl.textContent = modelCount;
 
-  // Region select
-  document.getElementById('regionSelect')?.addEventListener('change', (e) => {
-    setRegion(e.target.value);
-  });
-});
+  // Data date
+  const dataDateEl = document.getElementById('data-date');
+  if (dataDateEl && benchmarkData.metadata && benchmarkData.metadata.generated_at) {
+    const d = new Date(benchmarkData.metadata.generated_at);
+    dataDateEl.textContent = d.toLocaleDateString('en-US', {
+      year: 'numeric', month: 'long', day: 'numeric',
+    });
+  }
+}
+
+// ── UTILITIES ──
+
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function escapeAttr(str) {
+  if (str == null) return '';
+  return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+// ── BOOTSTRAP ──
+document.addEventListener('DOMContentLoaded', init);

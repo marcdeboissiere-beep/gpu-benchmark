@@ -28,8 +28,7 @@ function detectRegion() {
 function setRegion(region) {
   currentRegion = region;
   // Re-render any affiliate links on the page
-  if (typeof renderRecommendations === 'function') renderRecommendations();
-  if (typeof renderTable === 'function') renderTable();
+  document.dispatchEvent(new CustomEvent('regionchange'));
 }
 
 // ---- Amazon ----
